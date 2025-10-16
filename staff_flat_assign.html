@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assign Flats to Staff - Admin Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1f2937; }
+        ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 10px; }
+        .loader { border-top-color: #3498db; -webkit-animation: spinner 1.5s linear infinite; animation: spinner 1.5s linear infinite; }
+        @-webkit-keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200 font-sans">
+
+    <div class="min-h-screen flex items-center justify-center p-4">
+        <div class="bg-gray-800 p-8 rounded-lg shadow-xl w-full max-w-2xl">
+            
+            <h2 class="text-2xl font-bold text-center text-white mb-2">Assign Flats for<br><span id="staff-name" class="text-blue-400">Loading...</span></h2>
+            <p class="text-center text-gray-400 mb-6">First select an owner to see their flats.</p>
+
+            <form id="assignment-form">
+                <div class="mb-4">
+                    <label for="owner-selector" class="block text-gray-300 mb-2 font-semibold">1. Select a Flat Owner:</label>
+                    <select id="owner-selector" class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">-- Loading Owners --</option>
+                    </select>
+                </div>
+
+                <div class="mb-6 bg-gray-900/50 p-4 rounded-lg min-h-[150px] max-h-80 overflow-y-auto">
+                    <label class="block text-gray-400 mb-3 font-semibold">2. Assign Flats for this Owner:</label>
+                    <div id="flats-checkbox-container" class="space-y-3">
+                        <p class="text-gray-500 italic text-center pt-8">Please select an owner first.</p>
+                    </div>
+                </div>
+                
+                <button type="submit" id="save-assignment-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300 flex items-center justify-center">
+                    <i class="fas fa-save mr-2"></i> Save Changes
+                </button>
+            </form>
+
+            <button onclick="window.close()" class="w-full mt-3 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300">
+                Close
+            </button>
+
+            <p id="status-message" class="text-center mt-4 font-semibold"></p>
+        </div>
+    </div>
+
+    <div id="loading-spinner" class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50">
+        <div class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-32 w-32"></div>
+    </div>
+
+    <script type="module" src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js"></script>
+    
+    <script type="module" src="staff_flat_assign.js"></script>
+
+</body>
+</html>

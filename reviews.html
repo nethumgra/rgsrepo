@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Reviews - Admin Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1f2937; }
+        ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+        /* Style for loading spinner */
+        .loader { border-top-color: #3498db; -webkit-animation: spinner 1.5s linear infinite; animation: spinner 1.5s linear infinite; }
+        @-webkit-keyframes spinner { 0% { -webkit-transform: rotate(0deg); } 100% { -webkit-transform: rotate(360deg); } }
+        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        /* Smooth transition for accordion */
+        .review-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        .highlight-btn.active {
+            background-color: #4f46e5; /* Indigo-600 */
+            border-color: #4f46e5;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200 font-sans">
+
+    <div class="flex h-screen bg-gray-900">
+        <aside class="w-64 flex-shrink-0 bg-gray-800 p-4 flex flex-col">
+            <div>
+                <div class="flex items-center mb-8">
+                    <img src="splash_logo.png" alt="Logo" class="h-10 mr-3">
+                    <h1 class="text-xl font-bold text-white">Admin Panel</h1>
+                </div>
+                <nav class="space-y-2">
+                     <a href="index.html" class="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 rounded-lg">
+                        <i class="fas fa-arrow-left mr-3"></i> Back to Panel
+                    </a>
+                </nav>
+            </div>
+        </aside>
+
+        <main class="flex-1 p-6 overflow-y-auto relative">
+            <h2 id="page-title" class="hidden"></h2> <div id="staff-details-container" class="bg-gray-800 p-6 rounded-lg shadow-lg mb-6 hidden">
+                </div>
+
+
+            <div class="mb-6">
+                <label for="flat-selector" class="block text-sm font-medium text-gray-400 mb-2">Select a flat to view reviews:</label>
+                <select id="flat-selector" class="w-full bg-gray-700 border border-gray-600 rounded-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">-- Select a Flat --</option>
+                </select>
+            </div>
+            
+            <div id="sticky-filter-bar" class="hidden sticky top-0 bg-gray-700/80 backdrop-blur-sm p-2 text-center text-sm font-semibold cursor-pointer z-10 rounded-b-lg shadow-lg" style="margin: -24px -24px 24px -24px;">
+                <i class="fas fa-filter mr-2"></i> Show Filters & Sort Options
+            </div>
+
+
+            <div id="controls-container" class="hidden bg-gray-800 p-4 rounded-lg mb-6 space-y-4">
+                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div>
+                         <label for="review-search" class="block text-sm font-medium text-gray-400 mb-2">Search Reviews</label>
+                        <input type="text" id="review-search" placeholder="Search by comment..." class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                     <div>
+                         <label for="sort-selector" class="block text-sm font-medium text-gray-400 mb-2">Sort By</label>
+                         <select id="sort-selector" class="w-full bg-gray-700 border border-gray-600 rounded-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="newest">Newest First</option>
+                            <option value="oldest">Oldest First</option>
+                            <option value="highest">Highest Rating</option>
+                            <option value="lowest">Lowest Rating</option>
+                        </select>
+                    </div>
+                    <div>
+                         <label for="year-filter" class="block text-sm font-medium text-gray-400 mb-2">Filter by Year</label>
+                         <select id="year-filter" class="w-full bg-gray-700 border border-gray-600 rounded-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="all">All Years</option>
+                        </select>
+                    </div>
+                    <div>
+                         <label for="month-filter" class="block text-sm font-medium text-gray-400 mb-2">Filter by Month</label>
+                         <select id="month-filter" class="w-full bg-gray-700 border border-gray-600 rounded-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="all">All Months</option>
+                        </select>
+                    </div>
+                </div>
+                 <div class="flex flex-wrap items-center gap-2 md:gap-4 border-t border-gray-700 pt-4">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="text-gray-400">Day:</span>
+                        <button class="day-filter-btn bg-blue-600 text-white font-bold py-1 px-3 rounded-lg text-xs" data-day="all">All</button>
+                        <button class="day-filter-btn bg-gray-600 hover:bg-gray-700 text-white font-bold py-1 px-3 rounded-lg text-xs" data-day="today">Today</button>
+                        <button class="day-filter-btn bg-gray-600 hover:bg-gray-700 text-white font-bold py-1 px-3 rounded-lg text-xs" data-day="0">Sun</button>
+                        <button class="day-filter-btn bg-gray-600 hover:bg-gray-700 text-white font-bold py-1 px-3 rounded-lg text-xs" data-day="1">Mon</button>
+                        <button class="day-filter-btn bg-gray-600 hover:bg-gray-700 text-white font-bold py-1 px-3 rounded-lg text-xs" data-day="2">Tue</button>
+                        <button class="day-filter-btn bg-gray-600 hover:bg-gray-700 text-white font-bold py-1 px-3 rounded-lg text-xs" data-day="3">Wed</button>
+                        <button class="day-filter-btn bg-gray-600 hover:bg-gray-700 text-white font-bold py-1 px-3 rounded-lg text-xs" data-day="4">Thu</button>
+                        <button class="day-filter-btn bg-gray-600 hover:bg-gray-700 text-white font-bold py-1 px-3 rounded-lg text-xs" data-day="5">Fri</button>
+                        <button class="day-filter-btn bg-gray-600 hover:bg-gray-700 text-white font-bold py-1 px-3 rounded-lg text-xs" data-day="6">Sat</button>
+                    </div>
+                     <div class="flex items-center gap-2 flex-wrap">
+                         <span class="text-gray-400">Comment:</span>
+                        <button class="comment-filter-btn bg-blue-600 text-white font-bold py-1 px-3 rounded-lg text-xs" data-comment="all">All</button>
+                        <button class="comment-filter-btn bg-gray-600 hover:bg-gray-700 text-white font-bold py-1 px-3 rounded-lg text-xs" data-comment="with">With Comment</button>
+                        <button class="comment-filter-btn bg-gray-600 hover:bg-gray-700 text-white font-bold py-1 px-3 rounded-lg text-xs" data-comment="without">Without Comment</button>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between border-t border-gray-700 pt-4">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="text-gray-400">Rating:</span>
+                        <button class="rating-filter-btn bg-blue-600 text-white font-bold py-1 px-3 rounded-lg text-xs" data-rating="all">All</button>
+                        <button class="rating-filter-btn bg-gray-600 hover:bg-gray-700 text-white font-bold py-1 px-3 rounded-lg text-xs" data-rating="good">Good (4-5 <i class="fas fa-star text-amber-400"></i>)</button>
+                        <button class="rating-filter-btn bg-gray-600 hover:bg-gray-700 text-white font-bold py-1 px-3 rounded-lg text-xs" data-rating="bad">Bad (1-2 <i class="fas fa-star text-amber-400"></i>)</button>
+                        <button class="rating-filter-btn bg-gray-600 hover:bg-gray-700 text-white font-bold py-1 px-3 rounded-lg text-xs" data-rating="unrated">Unrated</button>
+                    </div>
+                    <button id="clear-filters-btn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg text-sm">Clear All Filters</button>
+                </div>
+            </div>
+
+            <div id="reviews-container" class="space-y-2">
+                </div>
+
+            <div id="loading-spinner" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50">
+                <div class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-32 w-32"></div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+        import { getFirestore, collection, getDocs, doc, getDoc, query, where, collectionGroup, orderBy, updateDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+        import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-functions.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAxyGsVS9cuuv2bkwWKcj3ZgQPzIA5T15w",
+            authDomain: "plats-83345.firebaseapp.com",
+            projectId: "plats-83345",
+            storageBucket: "plats-83345.appspot.com",
+            messagingSenderId: "619656775053",
+            appId: "1:619656775053:web:25249b178c03afba52e9c4",
+            measurementId: "G-WKPK539FW6"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const functions = getFunctions(app, 'us-central1');
+
+        // *** THE FIX IS HERE: Make auth globally accessible for debugging ***
+        window.auth = auth; 
+
+        // Define callable functions
+        const deleteUser = httpsCallable(functions, 'deleteUser');
+        const resetPassword = httpsCallable(functions, 'resetPassword');
+        const sendTip = httpsCallable(functions, 'sendTip');
+
+        const pageTitle = document.getElementById('page-title');
+        const reviewsContainer = document.getElementById('reviews-container');
+        const flatSelector = document.getElementById('flat-selector');
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const controlsContainer = document.getElementById('controls-container');
+        const reviewSearch = document.getElementById('review-search');
+        const yearFilter = document.getElementById('year-filter');
+        const monthFilter = document.getElementById('month-filter');
+        const sortSelector = document.getElementById('sort-selector');
+        const clearFiltersBtn = document.getElementById('clear-filters-btn');
+        const staffDetailsContainer = document.getElementById('staff-details-container');
+        const mainContent = document.querySelector('main');
+        const stickyFilterBar = document.getElementById('sticky-filter-bar');
+        
+        let allReviewsData = []; 
+        let currentStaffData = {};
+        let filterTopOffset = 0;
+
+        function showLoading() { loadingSpinner.classList.remove('hidden'); }
+        function hideLoading() { loadingSpinner.classList.add('hidden'); }
+        
+        const urlParams = new URLSearchParams(window.location.search);
+        const staffId = urlParams.get('staffId');
+
+        async function loadStaffDetails() {
+            if (!staffId) return;
+
+            const userDocRef = doc(db, "users", staffId);
+            const userDocSnap = await getDoc(userDocRef);
+
+            if (userDocSnap.exists()) {
+                currentStaffData = userDocSnap.data();
+                const staffName = currentStaffData.staffName || 'Unknown Staff';
+                document.title = `Reviews for ${staffName} - Admin Panel`;
+                
+                const profileImage = currentStaffData.profileImageUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(staffName)}&background=374151&color=e5e7eb`;
+
+                staffDetailsContainer.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-center">
+                            <img src="${profileImage}" alt="Profile Image" class="w-24 h-24 rounded-full object-cover mr-6 border-2 border-gray-600">
+                            <div>
+                                <h3 class="text-2xl font-bold text-white">${staffName}</h3>
+                                <p class="text-gray-400"><i class="fas fa-envelope mr-2 w-4 text-center"></i>${currentStaffData.email || 'N/A'}</p>
+                                <p class="text-gray-400"><i class="fas fa-phone mr-2 w-4 text-center"></i>${currentStaffData.telephone || 'N/A'}</p>
+                                <p class="text-gray-300 mt-2"><i class="fas fa-star text-amber-400 mr-2 w-4 text-center"></i>Total Points: <span class="font-bold">${currentStaffData.totalPoints || 0}</span></p>
+                            </div>
+                        </div>
+                        <div class="flex flex-col space-y-2">
+                             <button id="send-tip-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg text-sm flex items-center justify-center"><i class="fas fa-coins mr-2"></i>Send Tip</button>
+                             <button id="change-password-btn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg text-sm flex items-center justify-center"><i class="fas fa-key mr-2"></i>Change Password</button>
+                             <button id="delete-profile-btn" class="bg-red-700 hover:bg-red-800 text-white font-bold py-2 px-4 rounded-lg text-sm flex items-center justify-center"><i class="fas fa-trash-alt mr-2"></i>Delete Profile</button>
+                        </div>
+                    </div>
+                `;
+                staffDetailsContainer.classList.remove('hidden');
+            }
+        }
+
+
+        async function populateFlatSelector() {
+            if (!staffId) return;
+
+            try {
+                const flatsQuery = query(collection(db, "condominiums"), where("assignedStaffUids", "array-contains", staffId));
+                const querySnapshot = await getDocs(flatsQuery);
+
+                if(querySnapshot.empty) {
+                    flatSelector.innerHTML = '<option value="">No flats assigned to this staff</option>';
+                    return;
+                }
+
+                querySnapshot.forEach(doc => {
+                    const flatData = doc.data();
+                    const option = document.createElement('option');
+                    option.value = doc.id;
+                    option.textContent = flatData.condominiumName || 'Unnamed Flat';
+                    flatSelector.appendChild(option);
+                });
+
+            } catch (error) {
+                console.error("Error populating flats:", error);
+            }
+        }
+
+        async function loadReviewsForFlat(condoId) {
+            reviewsContainer.innerHTML = '<p class="text-center text-gray-400">Loading reviews...</p>';
+            controlsContainer.classList.add('hidden');
+            clearFilters();
+            allReviewsData = [];
+
+            if (!condoId || !staffId) {
+                reviewsContainer.innerHTML = '';
+                return;
+            }
+
+            try {
+                const reportsQuery = query(
+                    collection(db, "condominiums", condoId, "cleaning_reports"), 
+                    where("staffUid", "==", staffId)
+                );
+                const reportsSnapshot = await getDocs(reportsQuery);
+
+                if (reportsSnapshot.empty) {
+                    reviewsContainer.innerHTML = `<div class="bg-gray-800 p-6 rounded-lg text-center text-gray-400">No reviews found for this flat.</div>`;
+                    return;
+                }
+                
+                controlsContainer.classList.remove('hidden');
+                filterTopOffset = controlsContainer.offsetTop;
+                
+                const uniqueYears = new Set();
+                const uniqueMonths = new Set();
+                
+                reportsSnapshot.forEach(reportDoc => {
+                    const reportData = reportDoc.data();
+                    const date = reportData.cleaningDate?.toDate();
+                    if(date) {
+                        uniqueYears.add(date.getFullYear());
+                        uniqueMonths.add(date.getMonth());
+                    }
+                    allReviewsData.push({
+                         id: reportDoc.id,
+                         condoId: condoId,
+                         ...reportData,
+                         date: date
+                    });
+                });
+                
+                populateDateFilters(uniqueYears, uniqueMonths);
+                sortAndRenderReviews();
+
+            } catch (error) {
+                console.error("Error loading reviews for flat:", error);
+                reviewsContainer.innerHTML = `<p class="text-red-500">Could not load reviews. Check the console.</p>`;
+            }
+        }
+        
+        function sortAndRenderReviews() {
+            const sortBy = sortSelector.value;
+            let sortedReviews = [...allReviewsData];
+            
+            sortedReviews.sort((a, b) => {
+                const ratingA = a.managerRating || 0;
+                const ratingB = b.managerRating || 0;
+                const dateA = a.date ? a.date.getTime() : 0;
+                const dateB = b.date ? b.date.getTime() : 0;
+
+                switch(sortBy) {
+                    case 'oldest': return dateA - dateB;
+                    case 'highest': return ratingB - ratingA;
+                    case 'lowest': return ratingA - ratingB;
+                    case 'newest': default: return dateB - dateA;
+                }
+            });
+
+            renderReviews(sortedReviews);
+            applyFilters();
+        }
+        
+        function renderReviews(reviews) {
+            if (reviews.length === 0) {
+                 reviewsContainer.innerHTML = `<div class="bg-gray-800 p-6 rounded-lg text-center text-gray-400">No reviews to display.</div>`;
+                 return;
+            }
+            
+            let reviewsHtml = '';
+            reviews.forEach(reportData => {
+                const dateString = reportData.date ? reportData.date.toLocaleString() : 'No Date';
+                const rating = reportData.managerRating || 0;
+                const managerComment = reportData.managerFeedback || '';
+                const tasks = reportData.tasksCompleted || [];
+                const adminNote = reportData.adminNote || '';
+                const highlightPoints = reportData.highlightPoints || [];
+
+                let starsHtml = '';
+                for (let i = 0; i < 5; i++) {
+                    starsHtml += `<i class="fas fa-star text-sm ${i < rating ? 'text-amber-400' : 'text-gray-600'}"></i>`;
+                }
+                
+                let tasksHtml = '';
+                if (tasks.length > 0) {
+                    tasksHtml += '<h4 class="font-semibold text-gray-300 mt-4 mb-2">Tasks Performed:</h4><ul class="space-y-2 list-none text-gray-400">';
+                    tasks.forEach(task => {
+                        tasksHtml += `<li class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-3"></i>${task}</li>`;
+                    });
+                    tasksHtml += '</ul>';
+                }
+
+                reviewsHtml += `
+                    <div class="bg-gray-800 rounded-lg review-item" 
+                         data-rating="${rating}" 
+                         data-comment="${managerComment.toLowerCase()}" 
+                         data-has-comment="${managerComment ? 'true' : 'false'}"
+                         data-timestamp="${reportData.date ? reportData.date.getTime() : 0}"
+                         data-report-id="${reportData.id}"
+                         data-condo-id="${reportData.condoId}">
+                        <button class="review-header w-full flex justify-between items-center p-4 text-left">
+                            <span class="font-semibold text-white">Work on ${dateString}</span>
+                            <div class="flex items-center space-x-2">
+                                ${starsHtml}
+                                <i class="fas fa-chevron-down transition-transform"></i>
+                            </div>
+                        </button>
+                        <div class="review-body">
+                            <div class="p-4 border-t border-gray-700">
+                                <p class="text-gray-300 mb-4 italic">"${managerComment || 'No manager comment provided.'}"</p>
+                                ${tasksHtml}
+                                <div class="mt-6 pt-4 border-t border-gray-600">
+                                    <h4 class="font-semibold text-gray-300 mb-2">Admin Note & Highlights</h4>
+                                    <textarea class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2 text-sm" rows="3" placeholder="Add a private note for the staff member...">${adminNote}</textarea>
+                                    <div class="my-2">
+                                        <div class="flex flex-wrap gap-2 mt-1">
+                                            <button class="highlight-btn ${highlightPoints.includes('Excellent Work') ? 'active' : ''} border border-gray-600 hover:bg-gray-700 text-white font-bold py-1 px-3 rounded-full text-xs" data-point="Excellent Work"><i class="fas fa-thumbs-up mr-2"></i>Excellent Work</button>
+                                            <button class="highlight-btn ${highlightPoints.includes('Good Job') ? 'active' : ''} border border-gray-600 hover:bg-gray-700 text-white font-bold py-1 px-3 rounded-full text-xs" data-point="Good Job"><i class="fas fa-smile mr-2"></i>Good Job</button>
+                                            <button class="highlight-btn ${highlightPoints.includes('Needs Improvement') ? 'active' : ''} border border-gray-600 hover:bg-gray-700 text-white font-bold py-1 px-3 rounded-full text-xs" data-point="Needs Improvement"><i class="fas fa-thumbs-down mr-2"></i>Needs Improvement</button>
+                                            <button class="highlight-btn ${highlightPoints.includes('Incomplete Task') ? 'active' : ''} border border-gray-600 hover:bg-gray-700 text-white font-bold py-1 px-3 rounded-full text-xs" data-point="Incomplete Task"><i class="fas fa-exclamation-triangle mr-2"></i>Incomplete Task</button>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <button class="save-note-btn bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-1 px-4 rounded-lg text-sm">Save Note</button>
+                                        <span class="ml-2 text-green-400 text-sm save-status hidden">Saved!</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            reviewsContainer.innerHTML = reviewsHtml;
+        }
+
+        function populateDateFilters(yearsSet, monthsSet) {
+            yearFilter.innerHTML = '<option value="all">All Years</option>';
+            Array.from(yearsSet).sort((a, b) => b - a).forEach(year => {
+                yearFilter.innerHTML += `<option value="${year}">${year}</option>`;
+            });
+
+            monthFilter.innerHTML = '<option value="all">All Months</option>';
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            Array.from(monthsSet).sort((a, b) => a - b).forEach(monthIndex => {
+                monthFilter.innerHTML += `<option value="${monthIndex}">${monthNames[monthIndex]}</option>`;
+            });
+        }
+
+        function applyFilters() {
+            const searchTerm = reviewSearch.value.toLowerCase();
+            const activeRatingBtn = document.querySelector('.rating-filter-btn.bg-blue-600');
+            const activeDayBtn = document.querySelector('.day-filter-btn.bg-blue-600');
+            const activeCommentBtn = document.querySelector('.comment-filter-btn.bg-blue-600');
+            const activeRating = activeRatingBtn.dataset.rating;
+            const activeDay = activeDayBtn.dataset.day;
+            const activeComment = activeCommentBtn.dataset.comment;
+            const selectedYear = yearFilter.value;
+            const selectedMonth = monthFilter.value;
+
+            let visibleCount = 0;
+            document.querySelectorAll('.review-item').forEach(item => {
+                const itemTimestamp = parseInt(item.dataset.timestamp);
+                const itemDate = itemTimestamp ? new Date(itemTimestamp) : null;
+                const itemRating = parseInt(item.dataset.rating);
+                const itemCommentText = item.dataset.comment;
+                const itemHasComment = item.dataset.hasComment === 'true';
+
+                let ratingMatch = (activeRating === 'all') || (activeRating === 'good' && itemRating >= 4) || (activeRating === 'bad' && itemRating > 0 && itemRating <= 2) || (activeRating === 'unrated' && itemRating === 0);
+                let commentMatch = (activeComment === 'all') || (activeComment === 'with' && itemHasComment) || (activeComment === 'without' && !itemHasComment);
+                const searchMatch = (itemCommentText.includes(searchTerm));
+                const yearMatch = (selectedYear === 'all' || (itemDate && itemDate.getFullYear() == selectedYear));
+                const monthMatch = (selectedMonth === 'all' || (itemDate && itemDate.getMonth() == selectedMonth));
+                let dayMatch = (activeDay === 'all') || (itemDate && (activeDay === 'today' ? itemDate.setHours(0,0,0,0) === new Date().setHours(0,0,0,0) : itemDate.getDay() == activeDay));
+
+                if (ratingMatch && searchMatch && yearMatch && monthMatch && dayMatch && commentMatch) {
+                    item.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+            
+            const noResultsMessage = reviewsContainer.querySelector('#no-results-message');
+            if (visibleCount === 0 && allReviewsData.length > 0) {
+                if(!noResultsMessage) reviewsContainer.insertAdjacentHTML('beforeend', `<div id="no-results-message" class="bg-gray-800 p-6 rounded-lg text-center text-gray-400">No reviews match the current filters.</div>`);
+            } else if (noResultsMessage) {
+                 noResultsMessage.remove();
+            }
+        }
+        
+        function clearFilters() {
+            reviewSearch.value = '';
+            yearFilter.value = 'all';
+            monthFilter.value = 'all';
+            sortSelector.value = 'newest';
+
+            ['.rating-filter-btn', '.day-filter-btn', '.comment-filter-btn'].forEach(selector => {
+                const btnGroup = document.querySelector(selector).parentElement;
+                btnGroup.querySelectorAll(selector).forEach(b => b.classList.replace('bg-blue-600', 'bg-gray-600'));
+                const allBtn = btnGroup.querySelector(`${selector}[data-${selector.split('-')[0].substring(1)}="all"]`);
+                 if(allBtn) allBtn.classList.replace('bg-gray-600', 'bg-blue-600');
+            });
+            sortAndRenderReviews();
+        }
+
+        async function saveAdminNote(condoId, reportId, noteText, highlightPoints) {
+            const reportRef = doc(db, "condominiums", condoId, "cleaning_reports", reportId);
+            try {
+                await updateDoc(reportRef, { adminNote: noteText, highlightPoints: highlightPoints });
+                return true;
+            } catch (error) {
+                console.error("Error saving note: ", error);
+                return false;
+            }
+        }
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const userDocRef = doc(db, "users", user.uid);
+                const userDocSnap = await getDoc(userDocRef);
+                
+                if (userDocSnap.exists() && userDocSnap.data().role === 'ADMIN') {
+                    await loadStaffDetails();
+                    await populateFlatSelector();
+                    hideLoading();
+                } else {
+                    staffDetailsContainer.innerHTML = `<p class="text-red-500">You do not have permission to view this page.</p>`;
+                    hideLoading();
+                }
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+
+        flatSelector.addEventListener('change', (e) => loadReviewsForFlat(e.target.value));
+        [reviewSearch, yearFilter, monthFilter].forEach(el => el.addEventListener('input', applyFilters));
+        sortSelector.addEventListener('change', sortAndRenderReviews);
+        clearFiltersBtn.addEventListener('click', clearFilters);
+        
+        ['.rating-filter-btn', '.day-filter-btn', '.comment-filter-btn'].forEach(selector => {
+            document.querySelectorAll(selector).forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.currentTarget.parentElement.querySelectorAll(selector).forEach(b => b.classList.replace('bg-blue-600','bg-gray-600'));
+                    e.currentTarget.classList.replace('bg-gray-600','bg-blue-600');
+                    applyFilters();
+                });
+            });
+        });
+
+        reviewsContainer.addEventListener('click', async (e) => {
+            const header = e.target.closest('.review-header');
+            if(header) {
+                const body = header.nextElementSibling;
+                const icon = header.querySelector('.fa-chevron-down');
+                if(body.style.maxHeight) { body.style.maxHeight = null; icon.style.transform = 'rotate(0deg)'; } 
+                else { body.style.maxHeight = body.scrollHeight + "px"; icon.style.transform = 'rotate(180deg)'; }
+                return;
+            }
+
+            if (e.target.closest('.highlight-btn')) { e.target.closest('.highlight-btn').classList.toggle('active'); return; }
+
+            const saveBtn = e.target.closest('.save-note-btn');
+            if (saveBtn) {
+                const reviewItem = saveBtn.closest('.review-item');
+                const { reportId, condoId } = reviewItem.dataset;
+                const noteText = reviewItem.querySelector('textarea').value;
+                const selectedPoints = Array.from(reviewItem.querySelectorAll('.highlight-btn.active')).map(btn => btn.dataset.point);
+                const statusSpan = reviewItem.querySelector('.save-status');
+                statusSpan.textContent = 'Saving...'; statusSpan.className = 'ml-2 text-gray-400 text-sm';
+                const success = await saveAdminNote(condoId, reportId, noteText, selectedPoints);
+                statusSpan.textContent = success ? 'Saved!' : 'Error!';
+                statusSpan.className = `ml-2 text-sm ${success ? 'text-green-400' : 'text-red-400'}`;
+                setTimeout(() => { statusSpan.classList.add('hidden') }, 2000);
+            }
+        });
+
+        staffDetailsContainer.addEventListener('click', async (e) => {
+             const button = e.target.closest('button');
+             if(!button || !staffId) return;
+             showLoading();
+
+             try {
+                 if(button.id === 'send-tip-btn') {
+                     const amount = prompt("Enter the tip amount:", "5");
+                     if (amount && !isNaN(amount) && parseFloat(amount) > 0) {
+                        const message = prompt("Enter an optional message for the tip:", "Great job!");
+                        const result = await sendTip({ uid: staffId, amount: parseFloat(amount), message: message });
+                        alert(result.data.message);
+                     } else if (amount !== null) {
+                         alert("Please enter a valid positive number for the tip amount.");
+                     }
+                 } else if (button.id === 'change-password-btn') {
+                     if (confirm(`Are you sure you want to send a password reset email to ${currentStaffData.email}?`)) {
+                        const result = await resetPassword({ email: currentStaffData.email });
+                        alert(result.data.message);
+                     }
+                 } else if (button.id === 'delete-profile-btn') {
+                     if (confirm(`DANGER: Are you sure you want to PERMANENTLY DELETE ${currentStaffData.staffName}? This action cannot be undone.`)) {
+                         const result = await deleteUser({ uid: staffId });
+                         alert(result.data.message);
+                         window.location.href = 'index.html'; // Redirect back to main panel
+                     }
+                 }
+            } catch (error) {
+                console.error("Error executing function:", error);
+                alert(`Error: ${error.message}`);
+            } finally {
+                hideLoading();
+            }
+        });
+        
+        mainContent.addEventListener('scroll', () => {
+             if (!controlsContainer.classList.contains('hidden')) {
+                if (mainContent.scrollTop > filterTopOffset) stickyFilterBar.classList.remove('hidden');
+                else stickyFilterBar.classList.add('hidden');
+             }
+        });
+
+        stickyFilterBar.addEventListener('click', () => {
+            mainContent.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+    </script>
+</body>
+</html>

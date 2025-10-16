@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cleaning Reports - Admin Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    
+    <script src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
+    <script src="https://unpkg.com/jspdf-autotable@latest/dist/jspdf.plugin.autotable.js"></script>
+
+    <style>
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1f2937; }
+        ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 10px; }
+        .loader { border-top-color: #3498db; -webkit-animation: spinner 1.5s linear infinite; animation: spinner 1.5s linear infinite; }
+        @-webkit-keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            cursor: pointer;
+            filter: invert(0.8) brightness(100%) sepia(100%) saturate(0%) hue-rotate(0deg);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200 font-sans">
+
+    <div class="flex h-screen bg-gray-900">
+        <aside class="w-64 flex-shrink-0 bg-gray-800 p-4 flex flex-col">
+            <div>
+                <div class="flex items-center mb-8">
+                    <img src="splash_logo.png" alt="Logo" class="h-10 mr-3">
+                    <h1 class="text-xl font-bold text-white">Admin Panel</h1>
+                </div>
+                <nav class="space-y-2">
+                     <a href="index.html" class="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 rounded-lg">
+                        <i class="fas fa-tachometer-alt mr-3"></i> Dashboard
+                    </a>
+                    <a href="index.html" onclick="sessionStorage.setItem('loadPage', 'owners')" class="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 rounded-lg">
+                        <i class="fas fa-user-tie mr-3"></i> Owners
+                    </a>
+                    <a href="index.html" onclick="sessionStorage.setItem('loadPage', 'managers')" class="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 rounded-lg">
+                        <i class="fas fa-user-cog mr-3"></i> Managers
+                    </a>
+                    <a href="index.html" onclick="sessionStorage.setItem('loadPage', 'staff')" class="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 rounded-lg">
+                        <i class="fas fa-users mr-3"></i> Staff
+                    </a>
+                    <a href="index.html" onclick="sessionStorage.setItem('loadPage', 'condos')" class="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 rounded-lg">
+                        <i class="fas fa-building mr-3"></i> Flats
+                    </a>
+                    <a href="cleaning_reports.html" class="flex items-center px-4 py-2 text-gray-300 bg-gray-700 rounded-lg">
+                        <i class="fas fa-file-alt mr-3"></i> Cleaning Reports
+                    </a>
+                </nav>
+            </div>
+        </aside>
+
+        <main class="flex-1 p-6 overflow-y-auto">
+            <h2 class="text-3xl font-bold text-white mb-6">Cleaning Reports</h2>
+
+            <div class="bg-gray-800 p-4 rounded-lg mb-6 space-y-4">
+                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div>
+                         <label for="owner-filter" class="block text-sm font-medium text-gray-400 mb-2">Filter by Owner</label>
+                         <select id="owner-filter" class="w-full bg-gray-700 border border-gray-600 rounded-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">All Owners</option>
+                        </select>
+                    </div>
+                     <div>
+                         <label for="flat-filter" class="block text-sm font-medium text-gray-400 mb-2">Filter by Flat</label>
+                         <select id="flat-filter" class="w-full bg-gray-700 border border-gray-600 rounded-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500" disabled>
+                            <option value="">Select an Owner First</option>
+                        </select>
+                    </div>
+                     <div>
+                         <label for="year-filter" class="block text-sm font-medium text-gray-400 mb-2">Filter by Year</label>
+                         <select id="year-filter" class="w-full bg-gray-700 border border-gray-600 rounded-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">All Years</option>
+                        </select>
+                    </div>
+                    <div>
+                         <label for="month-filter" class="block text-sm font-medium text-gray-400 mb-2">Filter by Month</label>
+                         <select id="month-filter" class="w-full bg-gray-700 border border-gray-600 rounded-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">All Months</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-4 border-t border-gray-700">
+                     <div class="lg:col-span-3">
+                         <label for="date-picker" class="block text-sm font-medium text-gray-400 mb-2">Filter by Specific Date</label>
+                         <input type="date" id="date-picker" class="w-full bg-gray-700 border border-gray-600 rounded-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                     </div>
+                     <div class="flex items-end">
+                        <button id="clear-filters-btn" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg">
+                            <i class="fas fa-times mr-2"></i>Clear All Filters
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+                <div class="p-4 flex justify-between items-center">
+                    <input type="text" id="report-search" placeholder="Search by staff name, or review status..." class="w-full md:w-1/2 px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    
+                    <button id="export-reports-btn" class="bg-red-700 hover:bg-red-800 text-white font-bold py-2 px-4 rounded-lg ml-4 flex items-center">
+                        <i class="fas fa-file-pdf mr-2"></i> Export to PDF
+                    </button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-left">
+                        <thead class="bg-gray-700">
+                            <tr id="reports-table-header-row">
+                                <th class="p-4">Date & Time</th>
+                                <th class="p-4">Flat Name</th>
+                                <th class="p-4">Cleaned By</th>
+                                <th class="p-4">Manager Review</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reports-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="loading-spinner" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50">
+        <div class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-32 w-32"></div>
+    </div>
+
+    <div id="tasks-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50">
+        <div class="bg-gray-800 rounded-lg shadow-xl w-full max-w-lg">
+            <div class="p-4 border-b border-gray-700 flex justify-between items-center">
+                <h3 id="tasks-modal-title" class="text-xl font-bold text-white">Tasks Completed</h3>
+                <button id="tasks-modal-close-button" class="text-gray-400 hover:text-white text-3xl font-bold">&times;</button>
+            </div>
+            <div class="p-6">
+                <ul id="tasks-list" class="space-y-3 text-gray-300"></ul>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js"></script>
+    <script type="module" src="cleaning_reports.js"></script>
+</body>
+</html>

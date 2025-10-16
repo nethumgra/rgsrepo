@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Admin Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1f2937; }
+        ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 10px; }
+        .loader { border-top-color: #3498db; -webkit-animation: spinner 1.5s linear infinite; animation: spinner 1.5s linear infinite; }
+        @-webkit-keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200 font-sans">
+
+    <div class="flex h-screen bg-gray-900">
+        <aside class="w-64 flex-shrink-0 bg-gray-800 p-4 flex flex-col">
+            <div>
+                <div class="flex items-center mb-8">
+                    <img src="splash_logo.png" alt="Logo" class="h-10 mr-3">
+                    <h1 class="text-xl font-bold text-white">Admin Panel</h1>
+                </div>
+                <nav class="space-y-2">
+                    <a href="dashboard.html" class="flex items-center px-4 py-2 text-gray-300 bg-gray-700 rounded-lg">
+                        <i class="fas fa-tachometer-alt mr-3"></i> Dashboard
+                    </a>
+                    <a href="index.html" class="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 rounded-lg">
+                        <i class="fas fa-user-tie mr-3"></i> Owners
+                    </a>
+                    <a href="index.html" onclick="sessionStorage.setItem('loadPage', 'managers')" class="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 rounded-lg">
+                        <i class="fas fa-user-cog mr-3"></i> Managers
+                    </a>
+                    <a href="index.html" onclick="sessionStorage.setItem('loadPage', 'staff')" class="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 rounded-lg">
+                        <i class="fas fa-users mr-3"></i> Staff
+                    </a>
+                    <a href="index.html" onclick="sessionStorage.setItem('loadPage', 'condos')" class="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 rounded-lg">
+                        <i class="fas fa-building mr-3"></i> Flats
+                    </a>
+                    <a href="cleaning_reports.html" class="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 rounded-lg">
+                        <i class="fas fa-file-alt mr-3"></i> Cleaning Reports
+                    </a>
+                </nav>
+            </div>
+            <button id="logout-button" class="mt-auto w-full flex items-center justify-center px-4 py-2 text-red-400 hover:bg-red-500 hover:text-white rounded-lg transition duration-200">
+                <i class="fas fa-sign-out-alt mr-3"></i> Logout
+            </button>
+        </aside>
+
+        <main class="flex-1 p-6 overflow-y-auto">
+            <h2 class="text-3xl font-bold text-white mb-6">Dashboard</h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                <div class="lg:col-span-2 bg-gray-800 p-6 rounded-lg shadow-lg">
+                    <h3 class="text-xl font-semibold mb-4 text-white">Monthly Reports Overview</h3>
+                    <canvas id="monthlyReportsChart"></canvas>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
+                        <h3 class="text-xl font-semibold mb-4 text-white">Users Breakdown</h3>
+                        <canvas id="usersBreakdownChart"></canvas>
+                    </div>
+
+                    <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
+                        <h3 class="text-xl font-semibold mb-4 text-white">Top 5 Staff (By Points)</h3>
+                        <div id="top-staff-list" class="space-y-4">
+                            </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <div id="loading-spinner" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50">
+        <div class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-32 w-32"></div>
+    </div>
+    
+    <script type="module" src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js"></script>
+    <script type="module" src="dashboard.js"></script>
+
+</body>
+</html>

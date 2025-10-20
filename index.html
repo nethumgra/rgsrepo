@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RSG Multiservice - Admin Panel</title>
+    <title>RSG Multiservice - Admin Login</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link rel="icon" type="image/png" href="splash_logo.png">
@@ -11,13 +11,13 @@
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #1f2937; }
         ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 10px; }
-        .loader { border-top-color: #3498db; -webkit-animation: spinner 1.5s linear infinite; animation: spinner 1.5s linear infinite; }
+        .loader { border-top-color: #c53030; -webkit-animation: spinner 1.5s linear infinite; animation: spinner 1.5s linear infinite; }
         @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-200 font-sans">
 
-    <div id="login-screen" class="min-h-screen flex items-center justify-center bg-gray-900">
+    <div id="login-screen" class="min-h-screen flex items-center justify-center bg-gray-900 p-4">
         <div class="bg-gray-800 p-8 rounded-lg shadow-xl w-full max-w-sm">
             <div class="flex justify-center mb-6"><img src="splash_logo.png" alt="Logo" class="h-20"></div>
             <h2 class="text-2xl font-bold text-center text-white mb-2">Admin Panel Login</h2>
@@ -31,84 +31,101 @@
                     <label for="password" class="block text-gray-400 mb-2">Password</label>
                     <input type="password" id="password" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white" required>
                 </div>
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">Login</button>
+                <button type="submit" id="login-button" class="w-full bg-red-700 hover:bg-red-800 text-white font-bold py-3 px-4 rounded-lg transition-colors">
+                    Login
+                </button>
             </form>
             <p id="login-error" class="text-red-500 text-center mt-4"></p>
         </div>
     </div>
 
-    <div id="admin-panel" class="hidden">
-        <div class="flex h-screen bg-gray-900">
-            <aside class="w-64 flex-shrink-0 bg-gray-800 p-4 flex flex-col">
-                <div>
-                    <div class="flex items-center mb-8">
-                        <img src="splash_logo.png" alt="Logo" class="h-10 mr-3">
-                        <h1 class="text-xl font-bold text-white">Admin Panel</h1>
-                    </div>
-                    <nav class="space-y-2">
-                    <a href="dashboard.html" class="flex items-center px-4 py-2 text-gray-300 bg-gray-700 rounded-lg">
-                        <i class="fas fa-tachometer-alt mr-3"></i> Dashboard
-                    </a>
-                 
-                    <a href="secondindex.html" onclick="sessionStorage.setItem('loadPage', 'managers')" class="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 rounded-lg">
-                        <i class="fas fa-user-cog mr-3"></i> Manage Users
-                    </a>
-                   
-                   
-                    <a href="cleaning_reports.html" class="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 rounded-lg">
-                        <i class="fas fa-file-alt mr-3"></i> Cleaning Reports
-                    </a>
-                </nav>
-                </div>
-                <button id="logout-button" class="mt-auto w-full flex items-center justify-center px-4 py-2 text-red-400 hover:bg-red-500 hover:text-white rounded-lg">
-                    <i class="fas fa-sign-out-alt mr-3"></i> Logout
-                </button>
-            </aside>
-
-            <main class="flex-1 p-6 overflow-y-auto">
-                <h2 id="page-title" class="text-3xl font-bold text-white mb-6"></h2>
-
-                <div id="content-users" class="page-content">
-                    <div class="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
-                        <div class="p-4 flex justify-between items-center">
-                            <input type="text" id="user-search" placeholder="Search by name or email..." class="w-full md:w-1/3 px-4 py-2 bg-gray-700 border rounded-lg">
-                            <div>
-                                <button id="export-users-btn" class="hidden bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg ml-4"></button>
-                            </div>
-                        </div>
-                        <div class="overflow-x-auto"><table class="min-w-full text-left"><thead class="bg-gray-700"><tr id="users-table-header-row"></tr></thead><tbody id="users-table-body"></tbody></table></div>
-                    </div>
-                </div>
-
-                <div id="content-condos" class="page-content hidden">
-                    <div class="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
-                        <div class="p-4 flex justify-between items-center">
-                            <input type="text" id="condos-search" placeholder="Search by flat name, address..." class="w-full md:w-1/3 px-4 py-2 bg-gray-700 rounded-lg">
-                            <button id="export-condos-btn" class="hidden bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg ml-4"><i class="fas fa-file-excel mr-2"></i> Export Flats</button>
-                        </div>
-                        <div class="overflow-x-auto"><table class="min-w-full text-left"><thead class="bg-gray-700"><tr id="condos-table-header-row"></tr></thead><tbody id="condos-table-body"></tbody></table></div>
-                    </div>
-                </div>
-                <div id="loading-spinner" class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50"><div class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-32 w-32"></div></div>
-            </main>
-        </div>
+    <div id="login-spinner-template" class="hidden">
+        <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-6 w-6 mx-auto"></div>
     </div>
 
-    <div id="flats-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50">
-        <div class="bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl"><div class="p-4 border-b border-gray-700 flex justify-between items-center"><h3 id="flats-modal-title" class="text-xl font-bold"></h3><button id="flats-modal-close-button" class="text-gray-400 hover:text-white text-3xl">&times;</button></div><div class="p-6"><div class="mb-4"><input type="text" id="flats-search" placeholder="Search..." class="w-full px-4 py-2 bg-gray-600 rounded-lg"></div><div class="overflow-x-auto max-h-80"><table class="min-w-full text-left"><thead class="bg-gray-700"><tr><th class="p-4">Flat Name</th><th class="p-4">Address</th></tr></thead><tbody id="flats-table-body"></tbody></table></div></div></div>
-    </div>
-    <div id="points-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50">
-        <div class="bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl"><div class="p-4 border-b flex justify-between"><h3 id="points-modal-title" class="text-xl font-bold"></h3><button id="points-modal-close-button" class="text-gray-400 text-3xl">&times;</button></div><div class="p-6"><div class="overflow-x-auto max-h-96"><table class="min-w-full text-left"><thead class="bg-gray-700"><tr><th class="p-4">Flat Name</th><th class="p-4">Points Earned</th></tr></thead><tbody id="points-table-body"></tbody></table></div></div></div>
-    </div>
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    <div id="create-user-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50">
-        <div class="bg-gray-800 rounded-lg shadow-xl w-full max-w-md"><div class="p-4 border-b border-gray-700 flex justify-between"><h3 id="create-user-modal-title" class="text-xl font-bold">Create New User</h3><button class="modal-close-btn text-gray-400 text-3xl">&times;</button></div><form id="create-user-form" class="p-6 space-y-4"><input type="hidden" id="user-role"><div id="create-user-fields"></div><button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">Save User</button></form></div>
-    </div>
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAxyGsVS9cuuv2bkwWKcj3ZgQPzIA5T15w",
+            authDomain: "plats-83345.firebaseapp.com",
+            projectId: "plats-83345",
+            storageBucket: "plats-83345.appspot.com",
+            messagingSenderId: "619656775053",
+            appId: "1:619656775053:web:25249b178c03afba52e9c4",
+            measurementId: "G-WKPK539FW6"
+        };
+        
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-    <div id="assign-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50">
-        <div class="bg-gray-800 rounded-lg shadow-xl w-full max-w-lg"><div class="p-4 border-b border-gray-700 flex justify-between"><h3 id="assign-modal-title" class="text-xl font-bold"></h3><button class="modal-close-btn text-gray-400 text-3xl">&times;</button></div><div class="p-6"><div id="assign-modal-content"></div><div class="mt-6 text-right"><button id="save-assignment-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">Save Changes</button></div></div></div>
-    </div>
-    
-    <script type="module" src="main.js"></script>
+        // DOM Elements
+        const loginForm = document.getElementById('login-form');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const loginButton = document.getElementById('login-button');
+        const loginError = document.getElementById('login-error');
+        const spinnerTemplate = document.getElementById('login-spinner-template');
+
+        // Login Form Submit Logic
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = emailInput.value;
+            const password = passwordInput.value;
+            
+            // Show loading spinner
+            const originalButtonText = loginButton.innerHTML;
+            loginButton.innerHTML = spinnerTemplate.innerHTML;
+            loginButton.disabled = true;
+            loginError.textContent = '';
+
+            try {
+                // 1. Sign in the user
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                // 2. Check if user is an ADMIN
+                const userDocRef = doc(db, "users", user.uid);
+                const userDocSnap = await getDoc(userDocRef);
+
+                if (userDocSnap.exists() && userDocSnap.data().role === 'ADMIN') {
+                    // 3. Success! Redirect to dashboard.html
+                    window.location.href = 'dashboard.html';
+                } else {
+                    // Not an admin or no database record
+                    throw new Error('Access Denied. Only admins can log in here.');
+                }
+            } catch (error) {
+                // Handle errors
+                let friendlyMessage = 'An unknown error occurred.';
+                switch (error.code) {
+                    case 'auth/user-not-found':
+                    case 'auth/wrong-password':
+                    case 'auth/invalid-credential':
+                        friendlyMessage = 'Invalid email or password.';
+                        break;
+                    case 'auth/too-many-requests':
+                        friendlyMessage = 'Too many attempts. Please try again later.';
+                        break;
+                }
+                // Show custom error if it was our 'Access Denied' error
+                if (error.message.includes('Access Denied')) {
+                    friendlyMessage = error.message;
+                }
+                
+                loginError.textContent = friendlyMessage;
+                // Restore button
+                loginButton.innerHTML = originalButtonText;
+                loginButton.disabled = false;
+            }
+        });
+    </script>
 </body>
 </html>

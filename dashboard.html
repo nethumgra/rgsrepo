@@ -1,87 +1,454 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-R">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Admin Panel</title>
+    <title>RSG Multiservice - Admin Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
+    <link rel="icon" type="image/png" href="splash_logo.png">
     <style>
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #1f2937; }
-        ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 10px; }
-        .loader { border-top-color: #3498db; -webkit-animation: spinner 1.5s linear infinite; animation: spinner 1.5s linear infinite; }
-        @-webkit-keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #111827; /* bg-gray-900 */
+        }
+        
+        /* Sidebar Link Styles */
+        .admin-sidebar-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            color: #D1D5DB; /* gray-300 */
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .admin-sidebar-link:hover {
+            background-color: #374151; /* gray-700 */
+            color: white;
+        }
+         .admin-sidebar-link.active {
+            background-color: #4B5563; /* gray-600 */
+            color: white;
+            font-weight: 600;
+        }
+        .admin-sidebar-link i { /* Using Font Awesome icons */
+            margin-right: 0.75rem;
+            flex-shrink: 0;
+            width: 1.25rem; /* 20px */
+            text-align: center;
+            color: #9CA3AF; /* gray-400 */
+        }
+        .admin-sidebar-link.active i {
+            color: white;
+        }
+
+        /* Stat Card Styles */
+        .stat-card {
+            background-color: #1F2937;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+        }
+        .stat-icon-wrapper {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 3rem;
+            height: 3rem;
+            border-radius: 9999px;
+            margin-right: 1rem;
+            background-color: #374151;
+        }
+        .stat-icon-wrapper.bg-blue-100 { color: #60A5FA; }
+        .stat-icon-wrapper.bg-green-100 { color: #34D399; }
+        .stat-icon-wrapper.bg-yellow-100 { color: #F59E0B; }
+        .stat-icon-wrapper.bg-purple-100 { color: #A78BFA; }
+
+        /* Action Card */
+        .action-card {
+            background-color: #1F2937;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            color: #D1D5DB;
+        }
+        .action-card:hover {
+            background-color: #374151;
+            border-color: #c53030;
+            color: white;
+            transform: translateY(-5px);
+        }
+        .action-card i {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: #c53030;
+        }
+        .action-card h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        /* Top Bar Button */
+        .top-bar-button {
+             background-color: #4a5568;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+        .top-bar-button:hover {
+             background-color: #6a7588;
+        }
+        
+        /* Loader */
+        .loader { 
+            border-top-color: #c53030;
+            -webkit-animation: spinner 1.5s linear infinite; 
+            animation: spinner 1.5s linear infinite; 
+        }
         @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        /* Mobile header and nav */
+        body.nav-open { overflow: hidden; }
     </style>
 </head>
-<body class="bg-gray-900 text-gray-200 font-sans">
+<body class="bg-gray-900">
+    <div id="app-container" class="w-full min-h-screen">
+        
+        <div id="loader" class="fixed inset-0 flex flex-col items-center justify-center bg-gray-900 z-50">
+            <div class="loader ease-linear rounded-full border-8 border-t-8 border-gray-700 h-24 w-24"></div>
+            <p class="mt-4 text-gray-400 text-lg">Loading Dashboard...</p>
+        </div>
 
-    <div class="flex h-screen bg-gray-900">
-        <aside class="w-64 flex-shrink-0 bg-gray-800 p-4 flex flex-col">
-            <div>
-                <div class="flex items-center mb-8">
-                    <img src="splash_logo.png" alt="Logo" class="h-10 mr-3">
-                    <h1 class="text-xl font-bold text-white">Admin Panel</h1>
-                </div>
-                <nav class="space-y-2">
-                    <a href="dashboard.html" class="flex items-center px-4 py-2 text-gray-300 bg-gray-700 rounded-lg">
-                        <i class="fas fa-tachometer-alt mr-3"></i> Dashboard
-                    </a>
-                 
-                    <a href="secondindex.html" onclick="sessionStorage.setItem('loadPage', 'managers')" class="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 rounded-lg">
-                        <i class="fas fa-user-cog mr-3"></i> Manage Users
-                    </a>
-                   
-                   
-                    <a href="cleaning_reports.html" class="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 rounded-lg">
-                        <i class="fas fa-file-alt mr-3"></i> Cleaning Reports
-                    </a>
-                </nav>
-            </div>
-            <button id="logout-button" class="mt-auto w-full flex items-center justify-center px-4 py-2 text-red-400 hover:bg-red-500 hover:text-white rounded-lg transition duration-200">
-                <i class="fas fa-sign-out-alt mr-3"></i> Logout
-            </button>
-        </aside>
-
-        <main class="flex-1 p-6 overflow-y-auto">
-            <h2 class="text-3xl font-bold text-white mb-6">Dashboard</h2>
+        <div id="dashboard-view" class="hidden w-full h-full">
             
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <header id="admin-mobile-header" class="md:hidden flex justify-between items-center p-4 bg-gray-800 border-b border-gray-700 fixed top-0 left-0 right-0 z-30">
+                <div class="flex items-center">
+                    <img src="splash_logo.png" alt="Logo" class="h-8 mr-2">
+                    <h1 class="text-xl font-bold text-white">Admin</h1>
+                </div>
+                <button id="admin-mobile-nav-toggle" class="p-2 rounded-lg bg-gray-700 text-white">
+                    <i class="fas fa-bars w-6 h-6"></i>
+                </button>
+            </header>
 
-                <div class="lg:col-span-2 bg-gray-800 p-6 rounded-lg shadow-lg">
-                    <h3 class="text-xl font-semibold mb-4 text-white">Monthly Reports Overview</h3>
-                    <canvas id="monthlyReportsChart"></canvas>
+            <div class="flex md:h-screen">
+                
+                <nav id="admin-sidebar" class="hidden md:flex w-64 bg-gray-800 text-white p-4 flex-col flex-shrink-0 h-screen">
+                    <div class="flex items-center mb-8">
+                         <img src="splash_logo.png" alt="Logo" class="h-10 mr-3">
+                         <h1 class="text-xl font-bold text-white">Admin Panel</h1>
+                    </div>
+                    <div class="flex-grow space-y-2">
+                        <a href="dashboard.html" class="admin-sidebar-link active">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <span>Dashboard</span>
+                        </a>
+                        
+                        <div class="border-t border-gray-700 my-2"></div>
+                        <p class="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">Manage Users</p>
+                     
+                         <a href="secondindex.html#view-managers" class="admin-sidebar-link">
+                           <i class="fas fa-user-tie"></i>
+                            <span>Manage Users</span>
+                        </a>
+                      
+                        <div class="border-t border-gray-700 my-2"></div>
+                        <p class="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</p>
+                        
+                     
+                        <a href="cleaning_reports.html" class="admin-sidebar-link">
+                            <i class="fas fa-file-lines"></i>
+                            <span>Cleaning Reports</span>
+                        </a>
+                    </div>
+                </nav>
+
+                <div id="admin-mobile-nav" class="hidden fixed inset-0 bg-gray-900 bg-opacity-95 z-40 p-6 md:hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-white">Menu</h2>
+                        <button id="admin-mobile-nav-close" class="p-2 text-white text-4xl leading-none">&times;</button>
+                    </div>
+                    <div class="space-y-3">
+                        <a href="dashboard.html" class="admin-sidebar-link active">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <span>Dashboard</span>
+                        </a>
+                        
+                        <div class="border-t border-gray-700 my-2"></div>
+                        <p class="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">Manage Users</p>
+
+                        <a href="secondindex.html#view-owners" class="admin-sidebar-link">
+                            <i class="fas fa-users"></i>
+                            <span>Owners</span>
+                        </a>
+                        <a href="secondindex.html#view-managers" class="admin-sidebar-link">
+                           <i class="fas fa-user-tie"></i>
+                            <span>Managers</span>
+                        </a>
+                        <a href="secondindex.html#view-staff" class="admin-sidebar-link">
+                             <i class="fas fa-user-shield"></i>
+                            <span>Staff</span>
+                        </a>
+
+                        <div class="border-t border-gray-700 my-2"></div>
+                        <p class="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</p>
+
+                        <a href="secondindex.html#assign-manager" class="admin-sidebar-link">
+                            <i class="fas fa-user-plus"></i>
+                            <span>Assign Manager</span>
+                        </a>
+                        <a href="secondindex.html#assign-staff" class="admin-sidebar-link">
+                            <i class="fas fa-user-plus"></i>
+                            <span>Assign Staff</span>
+                        </a>
+                        
+                        <a href="cleaning_reports.html" class="admin-sidebar-link">
+                            <i class="fas fa-file-lines"></i>
+                            <span>Cleaning Reports</span>
+                        </a>
+
+                        <div class="border-t border-gray-700 my-4"></div>
+                        <a id="admin-mobile-logout-button" href="#" class="admin-sidebar-link">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </a>
+                    </div>
                 </div>
 
-                <div class="space-y-6">
-                    <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
-                        <h3 class="text-xl font-semibold mb-4 text-white">Users Breakdown</h3>
-                        <canvas id="usersBreakdownChart"></canvas>
+                <main id="admin-main-content" class="flex-1 p-6 md:p-10 overflow-y-auto bg-gray-900 min-h-screen pt-24 md:pt-10">
+                    
+                    <div class="hidden md:flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+                        <h1 id="admin-desktop-main-title" class="text-3xl font-bold text-white">Dashboard</h1>
+                        <div class="flex items-center space-x-4 mt-4 sm:mt-0">
+                            <span id="admin-desktop-welcome" class="text-md font-medium text-gray-300">Welcome!</span>
+                            <button id="admin-desktop-logout-button" class="top-bar-button">
+                                <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                            </button>
+                        </div>
                     </div>
 
-                    <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
-                        <h3 class="text-xl font-semibold mb-4 text-white">Top 5 Staff (By Points)</h3>
-                        <div id="top-staff-list" class="space-y-4">
+                    <h1 id="admin-mobile-main-title" class="text-2xl font-bold text-white mb-4 md:hidden">Dashboard</h1>
+                    
+                    <div id="admin-page-content">
+                        
+                        <h2 class="text-2xl font-semibold text-white mb-4">At a Glance</h2>
+                        <div id="stats-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+                            
+                            <div class="stat-card">
+                                <div class="stat-icon-wrapper bg-blue-100">
+                                    <i class="fas fa-users h-6 w-6"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-400">Total Owners</p>
+                                    <p id="stats-owners" class="text-3xl font-bold text-white">...</p>
+                                </div>
                             </div>
+                            
+                            <div class="stat-card">
+                                <div class="stat-icon-wrapper bg-green-100">
+                                    <i class="fas fa-user-tie h-6 w-6"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-400">Total Managers</p>
+                                    <p id="stats-managers" class="text-3xl font-bold text-white">...</p>
+                                </div>
+                            </div>
+
+                            <div class="stat-card">
+                                <div class="stat-icon-wrapper bg-yellow-100">
+                                    <i class="fas fa-user-shield h-6 w-6"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-400">Total Staff</p>
+                                    <p id="stats-staff" class="text-3xl font-bold text-white">...</p>
+                                </div>
+                            </div>
+                            
+                            <div class="stat-card">
+                                <div class="stat-icon-wrapper bg-purple-100">
+                                   <i class="fas fa-building h-6 w-6"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-400">Total Flats</p>
+                                    <p id="stats-flats" class="text-3xl font-bold text-white">...</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h2 class="text-2xl font-semibold text-white mb-4">Main Menu</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            
+                            <a href="secondindex.html" class="action-card">
+                                <i class="fas fa-users-cog"></i>
+                                <h3>Manage Users</h3>
+                                <p>Add, edit, and assign Owners, Managers, and Staff.</p>
+                            </a>
+
+                            <a href="cleaning_reports.html" class="action-card">
+                                <i class="fas fa-file-lines"></i>
+                                <h3>View Cleaning Reports</h3>
+                                <p>Check cleaning status, reviews, and points for all flats.</p>
+                            </a>
+                        </div>
                     </div>
-                </div>
-
+                </main>
             </div>
-        </main>
+        </div>
     </div>
 
-    <div id="loading-spinner" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50">
-        <div class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-32 w-32"></div>
-    </div>
-    
-    <script type="module" src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js"></script>
-    <script type="module" src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js"></script>
-    <script type="module" src="https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js"></script>
-    <script type="module" src="dashboard.js"></script>
 
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { 
+            getAuth, 
+            onAuthStateChanged, 
+            signOut
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { 
+            getFirestore, 
+            collection, 
+            query, 
+            where, 
+            getDocs,
+            doc,
+            getDoc
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAxyGsVS9cuuv2bkwWKcj3ZgQPzIA5T15w",
+            authDomain: "plats-83345.firebaseapp.com",
+            projectId: "plats-83345",
+            storageBucket: "plats-83345.appspot.com",
+            messagingSenderId: "619656775053",
+            appId: "1:619656775053:web:25249b178c03afba52e9c4",
+            measurementId: "G-WKPK539FW6"
+        };
+        
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // DOM Elements
+        const loader = document.getElementById('loader');
+        const dashboardView = document.getElementById('dashboard-view');
+        
+        const adminDesktopWelcome = document.getElementById('admin-desktop-welcome');
+        const adminMobileWelcome = document.getElementById('admin-mobile-welcome');
+        const adminDesktopLogoutButton = document.getElementById('admin-desktop-logout-button');
+        const adminMobileLogoutButton = document.getElementById('admin-mobile-logout-button');
+
+        const adminMobileNavToggle = document.getElementById('admin-mobile-nav-toggle');
+        const adminMobileNav = document.getElementById('admin-mobile-nav');
+        const adminMobileNavClose = document.getElementById('admin-mobile-nav-close');
+
+        // --- VIEW MANAGEMENT ---
+        function showView(viewName) {
+            document.getElementById('loader').classList.add('hidden');
+            document.getElementById('dashboard-view').classList.remove('hidden');
+        }
+
+        // --- AUTHENTICATION ---
+        onAuthStateChanged(auth, user => {
+            if (user) {
+                checkUserRoleAndLoad(user);
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+
+        async function checkUserRoleAndLoad(user) {
+            try {
+                const userDocRef = doc(db, "users", user.uid);
+                const userDocSnap = await getDoc(userDocRef);
+
+                if (userDocSnap.exists() && userDocSnap.data().role === 'ADMIN') {
+                    const userData = userDocSnap.data();
+                    const displayName = userData.name || userData.ownerName || userData.managerName || userData.staffName || user.email;
+                    
+                    adminDesktopWelcome.textContent = `Welcome, ${displayName.split(' ')[0]}!`;
+                    
+                    // Load stats and then show the page
+                    await loadDashboardStats();
+                    showView('dashboard');
+
+                } else {
+                    alert('Access Denied. Only admins can view this page.');
+                    signOut(auth);
+                }
+            } catch (error) {
+                console.error("Error checking user role:", error);
+                alert("An error occurred. Logging out.");
+                signOut(auth);
+            }
+        }
+
+        // --- LOGOUT and NAV ---
+        adminDesktopLogoutButton.addEventListener('click', () => signOut(auth));
+        adminMobileLogoutButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            signOut(auth);
+        });
+
+        function closeMobileNav() {
+            adminMobileNav.classList.add('hidden');
+            document.body.classList.remove('nav-open');
+        }
+        adminMobileNavToggle.addEventListener('click', () => {
+            adminMobileNav.classList.remove('hidden');
+            document.body.classList.add('nav-open');
+        });
+        adminMobileNavClose.addEventListener('click', closeMobileNav);
+
+
+        // --- DATA FETCHING ---
+        async function loadDashboardStats() {
+            try {
+                const ownersQuery = query(collection(db, "users"), where("role", "==", "OWNER"));
+                const managersQuery = query(collection(db, "users"), where("role", "==", "CONDOMINIUM_MANAGER"));
+                const staffQuery = query(collection(db, "users"), where("role", "==", "STAFF"));
+                const flatsQuery = collection(db, "condominiums");
+
+                const [ownersSnapshot, managersSnapshot, staffSnapshot, flatsSnapshot] = await Promise.all([
+                    getDocs(ownersQuery),
+                    getDocs(managersQuery),
+                    getDocs(staffQuery),
+                    getDocs(flatsQuery)
+                ]);
+
+                const activeOwners = ownersSnapshot.docs.filter(doc => !doc.data().disabled).length;
+                const activeManagers = managersSnapshot.docs.filter(doc => !doc.data().disabled).length;
+                const activeStaff = staffSnapshot.docs.filter(doc => !doc.data().disabled).length;
+                const totalFlats = flatsSnapshot.size;
+
+                document.getElementById('stats-owners').textContent = activeOwners;
+                document.getElementById('stats-managers').textContent = activeManagers;
+                document.getElementById('stats-staff').textContent = activeStaff;
+                document.getElementById('stats-flats').textContent = totalFlats;
+
+            } catch (error) {
+                console.error("Error loading dashboard stats:", error);
+                document.getElementById('stats-owners').textContent = 'Error';
+                document.getElementById('stats-managers').textContent = 'Error';
+                document.getElementById('stats-staff').textContent = 'Error';
+                document.getElementById('stats-flats').textContent = 'Error';
+            }
+        }
+        
+    </script>
 </body>
 </html>

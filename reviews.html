@@ -134,7 +134,13 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
-        import { getFirestore, collection, getDocs, doc, getDoc, query, where, collectionGroup, orderBy, updateDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+        // =======================================================
+        // === THIS LINE HAS BEEN UPDATED ===
+        // =======================================================
+        import { getFirestore, collection, getDocs, doc, getDoc, query, where, collectionGroup, orderBy, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+        // =======================================================
+        // === END OF UPDATE ===
+        // =======================================================
         import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-functions.js";
 
         const firebaseConfig = {
@@ -156,7 +162,7 @@
         window.auth = auth; 
 
         // Define callable functions
-        const deleteUser = httpsCallable(functions, 'deleteUser');
+        // const deleteUser = httpsCallable(functions, 'deleteUser'); // We are no longer using this one from here
         const resetPassword = httpsCallable(functions, 'resetPassword');
         const sendTip = httpsCallable(functions, 'sendTip');
 
@@ -533,13 +539,16 @@
             }
         });
 
+        // =======================================================
+        // === THIS FUNCTION HAS BEEN UPDATED ===
+        // =======================================================
         staffDetailsContainer.addEventListener('click', async (e) => {
              const button = e.target.closest('button');
              if(!button || !staffId) return;
-             showLoading();
-
+             
              try {
                  if(button.id === 'send-tip-btn') {
+                     showLoading();
                      const amount = prompt("Enter the tip amount:", "5");
                      if (amount && !isNaN(amount) && parseFloat(amount) > 0) {
                         const message = prompt("Enter an optional message for the tip:", "Great job!");
@@ -548,25 +557,43 @@
                      } else if (amount !== null) {
                          alert("Please enter a valid positive number for the tip amount.");
                      }
+                     hideLoading();
                  } else if (button.id === 'change-password-btn') {
+                     showLoading();
                      if (confirm(`Are you sure you want to send a password reset email to ${currentStaffData.email}?`)) {
                         const result = await resetPassword({ email: currentStaffData.email });
                         alert(result.data.message);
                      }
+                     hideLoading();
                  } else if (button.id === 'delete-profile-btn') {
-                     if (confirm(`DANGER: Are you sure you want to PERMANENTLY DELETE ${currentStaffData.staffName}? This action cannot be undone.`)) {
-                         const result = await deleteUser({ uid: staffId });
-                         alert(result.data.message);
-                         window.location.href = 'index.html'; // Redirect back to main panel
+                     // Confirmation message updated
+                     if (confirm(`DANGER: Are you sure you want to PERMANENTLY DELETE ${currentStaffData.staffName} from the database? This action cannot be undone.`)) {
+                         showLoading();
+                         
+                         // --- REPLACED CODE ---
+                         // This now deletes the user document from Firestore
+                         const userDocRef = doc(db, "users", staffId);
+                         await deleteDoc(userDocRef);
+                         // --- END OF REPLACED CODE ---
+
+                         alert(`${currentStaffData.staffName} has been permanently deleted from the database.`);
+                         window.location.href = 'secondindex.html#view-staff'; // Redirect to the staff list
                      }
                  }
             } catch (error) {
                 console.error("Error executing function:", error);
                 alert(`Error: ${error.message}`);
             } finally {
-                hideLoading();
+                // Ensure loading is hidden if it wasn't hidden by a specific branch
+                const loader = document.getElementById('loading-spinner');
+                if (!loader.classList.contains('hidden')) {
+                    hideLoading();
+                }
             }
         });
+        // =======================================================
+        // === END OF UPDATED FUNCTION ===
+        // =======================================================
         
         mainContent.addEventListener('scroll', () => {
              if (!controlsContainer.classList.contains('hidden')) {

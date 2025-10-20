@@ -137,6 +137,10 @@
             cursor: pointer;
         }
 
+        /* Prevent scroll on body when mobile nav is open */
+        body.nav-open {
+            overflow: hidden;
+        }
     </style>
 </head>
 <body class="bg-gray-900"> <div id="app-container" class="w-full min-h-screen">
@@ -189,8 +193,22 @@
 
         <div id="dashboard-view" class="hidden w-full h-full">
             
-            <div id="admin-dashboard-content" class="hidden md:flex w-full h-screen">
-                <nav id="admin-sidebar" class="w-64 bg-gray-800 text-white p-4 flex flex-col flex-shrink-0">
+            <header id="admin-mobile-header" class="md:hidden flex justify-between items-center p-4 bg-gray-800 border-b border-gray-700 fixed top-0 left-0 right-0 z-30">
+                <div class="flex items-center">
+                    <img src="splash_logo.png" alt="Logo" class="h-8 mr-2">
+                    <h1 class="text-xl font-bold text-white">Admin</h1>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span id="admin-mobile-welcome" class="text-sm text-gray-400 hidden sm:block"></span>
+                    <button id="admin-mobile-nav-toggle" class="p-2 rounded-lg bg-gray-700 text-white">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                    </button>
+                </div>
+            </header>
+
+            <div class="flex md:h-screen">
+                
+                <nav id="admin-sidebar" class="hidden md:flex w-64 bg-gray-800 text-white p-4 flex-col flex-shrink-0 h-screen">
                     <div class="flex items-center mb-8">
                          <img src="splash_logo.png" alt="Logo" class="h-10 mr-3">
                          <h1 class="text-xl font-bold text-white">Admin Panel</h1>
@@ -221,55 +239,70 @@
                     </div>
                 </nav>
 
-                <div class="flex-1 flex flex-col overflow-hidden">
-                    <main id="admin-main-content" class="flex-1 p-6 md:p-10 overflow-y-auto bg-gray-900">
-                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
-                            <h1 id="admin-main-title" class="text-3xl font-bold text-white">Dashboard</h1>
-                            <div class="flex items-center space-x-4 mt-4 sm:mt-0">
-                                <span id="admin-welcome-message" class="text-md font-medium text-gray-300">Welcome, Admin!</span>
-                                <button class="top-bar-button" onclick="window.location.href='dashboard.html'">
-                                    Go to Main Menu
-                                </button>
-                                <button id="admin-logout-button" class="top-bar-button">
-                                    Logout
-                                </button>
-                            </div>
-                             </div>
-                        
-                        <div id="admin-page-content">
-                            </div>
-                    </main>
-                </div>
-            </div>
-
-            <div id="admin-dashboard-mobile" class="hidden md:hidden max-w-lg mx-auto p-4 bg-gray-900 min-h-screen">
-                <header class="flex justify-between items-center mb-6">
-                    <div>
-                         <h1 class="text-2xl font-bold text-white">Admin Panel</h1>
-                         <p id="admin-mobile-subtitle" class="text-gray-400 mt-1"></p>
+                <div id="admin-mobile-nav" class="hidden fixed inset-0 bg-gray-900 bg-opacity-95 z-40 p-6 md:hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-white">Menu</h2>
+                        <button id="admin-mobile-nav-close" class="p-2 text-white text-4xl leading-none">&times;</button>
                     </div>
-                    <button id="admin-mobile-logout-button" class="bg-gray-700 text-white py-2 px-4 rounded-lg shadow hover:bg-gray-600">
-                        Logout
-                    </button>
-                </header>
-                 <div class="text-white">
-                    <div class="mt-8">
-                        <h2 class="text-sm font-bold uppercase text-gray-500 mb-3 tracking-wider">Menu</h2>
-                        <div class="space-y-2">
-                             <a href="#view-owners" class="admin-sidebar-link active">...<span>Owners</span></a>
-                             <a href="#view-managers" class="admin-sidebar-link">...<span>Managers</span></a>
-                             <a href="#view-staff" class="admin-sidebar-link">...<span>Staff</span></a>
+                    <div class="space-y-3">
+                        <a href="#view-owners" class="admin-sidebar-link active">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" /></svg>
+                            <span>Owners</span>
+                        </a>
+                        <a href="#view-managers" class="admin-sidebar-link">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" clip-rule="evenodd" /></svg>
+                            <span>Managers</span>
+                        </a>
+                        <a href="#view-staff" class="admin-sidebar-link">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" /></svg>
+                            <span>Staff</span>
+                        </a>
 
-                            <div class="border-t border-gray-700 my-4"></div>
-                             <a href="#assign-manager" class="admin-sidebar-link">...<span>Assign Manager</span></a>
-                             <a href="#assign-staff" class="admin-sidebar-link">...<span>Assign Staff</span></a>
+                        <div class="border-t border-gray-700 my-4"></div>
+                        <a href="#assign-manager" class="admin-sidebar-link">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" /></svg>
+                            <span>Assign Manager</span>
+                        </a>
+                        <a href="#assign-staff" class="admin-sidebar-link">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" /></svg>
+                            <span>Assign Staff</span>
+                        </a>
+
+                        <div class="border-t border-gray-700 my-4"></div>
+                        <a href="dashboard.html" class="admin-sidebar-link">
+                            <svg class="w-5 h-5 mr-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" /></svg>
+                            <span>Main Menu</span>
+                        </a>
+                        <a id="admin-mobile-logout-button" href="#" class="admin-sidebar-link">
+                            <svg class="w-5 h-5 mr-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd" /></svg>
+                            <span>Logout</span>
+                        </a>
+                    </div>
+                </div>
+
+                <main id="admin-main-content" class="flex-1 p-6 md:p-10 overflow-y-auto bg-gray-900 min-h-screen pt-24 md:pt-10">
+                    
+                    <div class="hidden md:flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+                        <h1 id="admin-desktop-main-title" class="text-3xl font-bold text-white">Dashboard</h1>
+                        <div class="flex items-center space-x-4 mt-4 sm:mt-0">
+                            <span id="admin-desktop-welcome" class="text-md font-medium text-gray-300">Welcome, Admin!</span>
+                            <button class="top-bar-button" onclick="window.location.href='dashboard.html'">
+                                Go to Main Menu
+                            </button>
+                            <button id="admin-desktop-logout-button" class="top-bar-button">
+                                Logout
+                            </button>
                         </div>
                     </div>
-                </div>
-            </div>
 
+                    <h1 id="admin-mobile-main-title" class="text-2xl font-bold text-white mb-4 md:hidden">Dashboard</h1>
+                    
+                    <div id="admin-page-content">
+                        </div>
+                </main>
+            </div>
         </div>
-    </div>
+        </div>
     
     <div id="modal-view" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50">
         <div class="bg-gray-800 w-full max-w-lg rounded-2xl shadow-lg max-h-[90vh] flex flex-col">
@@ -328,7 +361,7 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // DOM Elements
+        // === UPDATED DOM Elements ===
         const loader = document.getElementById('loader');
         const authContainer = document.getElementById('auth-container');
         const loginView = document.getElementById('login-view');
@@ -340,12 +373,19 @@
         const loginErrorMessage = document.getElementById('login-error-message');
         
         // Admin Elements
-        const adminDashboardContent = document.getElementById('admin-dashboard-content');
-        const adminDashboardMobile = document.getElementById('admin-dashboard-mobile');
         const adminMainContent = document.getElementById('admin-main-content');
-        const adminMainTitle = document.getElementById('admin-main-title');
+        const adminDesktopMainTitle = document.getElementById('admin-desktop-main-title');
+        const adminMobileMainTitle = document.getElementById('admin-mobile-main-title');
         const adminPageContent = document.getElementById('admin-page-content');
+        
+        const adminDesktopWelcome = document.getElementById('admin-desktop-welcome');
+        const adminMobileWelcome = document.getElementById('admin-mobile-welcome');
+        const adminDesktopLogoutButton = document.getElementById('admin-desktop-logout-button');
         const adminMobileLogoutButton = document.getElementById('admin-mobile-logout-button');
+
+        const adminMobileNavToggle = document.getElementById('admin-mobile-nav-toggle');
+        const adminMobileNav = document.getElementById('admin-mobile-nav');
+        const adminMobileNavClose = document.getElementById('admin-mobile-nav-close');
 
         const modalView = document.getElementById('modal-view');
         const modalTitle = document.getElementById('modal-title');
@@ -394,8 +434,8 @@
             }
         });
 
-        adminMobileLogoutButton.addEventListener('click', () => signOut(auth));
-
+        // Logout listeners are now set in fetchAndDisplayDashboardData
+        
         // --- DATA FETCHING & DISPLAY ---
         async function fetchAndDisplayDashboardData(user) {
             showView('loader');
@@ -417,12 +457,17 @@
                 const displayName = userData.name || userData.ownerName || userData.managerName || userData.staffName || user.email;
                 
                 if (userRole === 'ADMIN') {
-                    adminDashboardContent.classList.remove('hidden');
-                    adminDashboardMobile.classList.remove('hidden');
-                    document.getElementById('admin-mobile-subtitle').textContent = `Logged in as ${displayName}`;
+                    // === UPDATED LOGIC ===
+                    // Set welcome messages for both desktop and mobile
+                    adminDesktopWelcome.textContent = `Welcome, ${displayName}!`;
+                    adminMobileWelcome.textContent = `Hi, ${displayName.split(' ')[0]}!`; // Short name for mobile
                     
-                    document.getElementById('admin-welcome-message').textContent = `Welcome, ${displayName}!`;
-                    document.getElementById('admin-logout-button').addEventListener('click', () => signOut(auth));
+                    // Add logout listeners for both buttons
+                    adminDesktopLogoutButton.addEventListener('click', () => signOut(auth));
+                    adminMobileLogoutButton.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        signOut(auth);
+                    });
 
                     setupAdminDashboardListeners();
                     // Set default view to #view-owners
@@ -466,44 +511,57 @@
                 setTimeout(() => globalToast.classList.add('hidden'), 300);
             }, 3000);
         }
+
+        function closeMobileNav() {
+            adminMobileNav.classList.add('hidden');
+            document.body.classList.remove('nav-open');
+        }
         
        // --- ADMIN PANEL ROUTING & CONTENT ---
 
         function handleHashChange(hash) {
-             const sidebarLinks = document.querySelectorAll('.admin-sidebar-link[href^="#view-"]');
-             sidebarLinks.forEach(l => l.classList.remove('active'));
+             // Get all links from both desktop and mobile nav
+             const allSidebarLinks = document.querySelectorAll('#admin-sidebar .admin-sidebar-link, #admin-mobile-nav .admin-sidebar-link');
+             allSidebarLinks.forEach(l => l.classList.remove('active'));
              
-             let activeLink = document.querySelector(`.admin-sidebar-link[href="${hash}"]`);
-             if (!activeLink || !hash.startsWith("#view-")) {
+             let activeLinks = document.querySelectorAll(`.admin-sidebar-link[href="${hash}"]`);
+             if (!activeLinks.length || !hash.startsWith("#view-")) {
                  // Fallback to owners if hash is invalid or a modal hash
-                 activeLink = document.querySelector('.admin-sidebar-link[href="#view-owners"]');
+                 activeLinks = document.querySelectorAll('.admin-sidebar-link[href="#view-owners"]');
                  hash = '#view-owners';
              }
-              if (activeLink) activeLink.classList.add('active'); // Check if activeLink exists
+             activeLinks.forEach(l => l.classList.add('active'));
+
+             // Close mobile nav on selection
+             closeMobileNav();
 
              const target = hash.substring(1);
+             let pageTitle = 'Dashboard';
              switch(target) {
                 case 'view-owners': 
-                    adminMainTitle.textContent = 'Owners';
+                    pageTitle = 'Owners';
                     renderUserListInPanel('OWNER'); 
                     break;
                 case 'view-managers': 
-                    adminMainTitle.textContent = 'Managers';
+                    pageTitle = 'Managers';
                     renderUserListInPanel('CONDOMINIUM_MANAGER'); 
                     break;
                 case 'view-staff': 
-                    adminMainTitle.textContent = 'Staff';
+                    pageTitle = 'Staff';
                     renderUserListInPanel('STAFF'); 
                     break;
                 default:
-                    adminMainTitle.textContent = 'Owners';
+                    pageTitle = 'Owners';
                     renderUserListInPanel('OWNER');
             }
+            // Update both desktop and mobile titles
+            adminDesktopMainTitle.textContent = pageTitle;
+            adminMobileMainTitle.textContent = pageTitle;
         }
 
         function setupAdminDashboardListeners() {
-            // --- PAGE LINKS ---
-            const pageLinks = document.querySelectorAll('.admin-sidebar-link[href^="#view-"]');
+            // --- PAGE LINKS (for both desktop and mobile) ---
+            const pageLinks = document.querySelectorAll('#admin-sidebar .admin-sidebar-link[href^="#view-"], #admin-mobile-nav .admin-sidebar-link[href^="#view-"]');
             pageLinks.forEach(link => {
                 link.addEventListener('click', (e) => {
                     e.preventDefault();
@@ -513,13 +571,14 @@
                 });
             });
 
-            // --- MODAL LINKS ---
+            // --- MODAL LINKS (for both desktop and mobile) ---
             const assignManagerLinks = document.querySelectorAll('a[href="#assign-manager"]');
             assignManagerLinks.forEach(link => {
                 link.addEventListener('click', (e) => {
                     e.preventDefault();
                     // Deselect active page link
                     document.querySelectorAll('.admin-sidebar-link[href^="#view-"]').forEach(l => l.classList.remove('active'));
+                    closeMobileNav();
                     showAssignManagerModal();
                 });
             });
@@ -530,9 +589,17 @@
                     e.preventDefault();
                     // Deselect active page link
                     document.querySelectorAll('.admin-sidebar-link[href^="#view-"]').forEach(l => l.classList.remove('active'));
+                    closeMobileNav();
                     showAssignCleanerModal(); // Call the existing cleaner/staff modal
                 });
             });
+
+            // --- Mobile Nav Toggle Listeners ---
+            adminMobileNavToggle.addEventListener('click', () => {
+                adminMobileNav.classList.remove('hidden');
+                document.body.classList.add('nav-open');
+            });
+            adminMobileNavClose.addEventListener('click', closeMobileNav);
         }
 
         
@@ -693,11 +760,11 @@
                     </div>
                     ${filterHtml} 
                     <button id="add-new-user-btn" class="w-full sm:w-auto flex-shrink-0 flex items-center justify-center px-5 py-3 bg-red-700 text-white rounded-lg shadow hover:bg-red-800 transition-colors font-semibold">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" /></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110 2h3V6a1 1 0 011-1z" clip-rule="evenodd" /></svg>
                         <span>Add New ${roleConfig.name}</span>
                     </button>
                 </div>
-                <div class="bg-gray-800 rounded-lg shadow overflow-hidden">
+                <div class="bg-gray-800 rounded-lg shadow overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-700">
                         <thead class="bg-gray-900">
                             <tr id="table-header-row">
@@ -971,7 +1038,9 @@
         // --- OWNER FLATS PANEL (Dark Mode) ---
         
         async function renderOwnerFlatsPanel(ownerId, ownerName) {
-            adminMainTitle.textContent = `Flats for ${ownerName}`;
+            // Update both titles
+            adminDesktopMainTitle.textContent = `Flats for ${ownerName}`;
+            adminMobileMainTitle.textContent = `Flats for ${ownerName}`;
             
             adminPageContent.innerHTML = `
                 <button id="back-to-owners-btn" class="mb-4 text-red-500 hover:text-red-400 font-medium flex items-center">
@@ -1120,14 +1189,14 @@
         function confirmDeleteUser(userId, userName, role) {
             const confirmContent = document.createElement('div');
             confirmContent.innerHTML = `
-                <p class="text-gray-300">Are you sure you want to delete <strong>${userName}</strong>?</p>
-                <p class="mt-2 text-sm text-gray-400">This will disable their account and prevent them from logging in. The user will be removed from all active lists.</p>
+                <p class="text-gray-300">Are you sure you want to <strong>PERMANENTLY DELETE</strong> <strong>${userName}</strong>?</p>
+                <p class="mt-2 text-sm text-yellow-400">This action is irreversible and will completely remove the user from the 'users' database collection. This does <strong>NOT</strong> delete their login account from Firebase Authentication, only their data record.</p>
                 <div class="flex justify-end space-x-3 mt-6">
                     <button id="cancel-delete" class="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600">Cancel</button>
-                    <button id="confirm-delete" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">Yes, Disable User</button>
+                    <button id="confirm-delete" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">Yes, Delete User</button>
                 </div>
             `;
-            openModal('Confirm Deletion', confirmContent);
+            openModal('Confirm Permanent Deletion', confirmContent);
 
             confirmContent.querySelector('#cancel-delete').addEventListener('click', () => {
                  modalView.classList.add('hidden');
@@ -1135,12 +1204,12 @@
 
             confirmContent.querySelector('#confirm-delete').addEventListener('click', async () => {
                 try {
-                    await updateDoc(doc(db, "users", userId), { disabled: true });
-                    showToast('User disabled successfully!');
+                    await deleteDoc(doc(db, "users", userId));
+                    showToast('User deleted successfully!');
                     modalView.classList.add('hidden');
                     handleHashChange(window.location.hash); // Refresh
                 } catch (error) {
-                    alert('Error disabling user: ' + error.message);
+                    alert('Error deleting user: ' + error.message);
                 }
             });
         }
@@ -1289,8 +1358,8 @@
                      if (window.location.hash === '#view-managers') {
                          handleHashChange('#view-managers'); // Refresh manager list
                      }
-                    else if (window.location.hash === '#view-owners' && adminMainTitle.textContent.includes('Flats for')) {
-                         const currentOwnerName = adminMainTitle.textContent.replace('Flats for ', '');
+                    else if (window.location.hash === '#view-owners' && (adminDesktopMainTitle.textContent.includes('Flats for') || adminMobileMainTitle.textContent.includes('Flats for'))) {
+                         const currentOwnerName = adminDesktopMainTitle.textContent.replace('Flats for ', '');
                          const owners = await fetchDocs('users', 'role', '==', 'OWNER'); 
                          const owner = owners.find(o => (o.ownerName || o.name) === currentOwnerName);
                          if(owner && owner.id === originalOwnerId) { 
@@ -1426,8 +1495,8 @@
                      if (window.location.hash === '#view-managers') {
                          handleHashChange('#view-managers'); // Refresh manager list
                      }
-                    else if (window.location.hash === '#view-owners' && adminMainTitle.textContent.includes('Flats for')) {
-                        const currentOwnerName = adminMainTitle.textContent.replace('Flats for ', '');
+                    else if (window.location.hash === '#view-owners' && (adminDesktopMainTitle.textContent.includes('Flats for') || adminMobileMainTitle.textContent.includes('Flats for'))) {
+                        const currentOwnerName = adminDesktopMainTitle.textContent.replace('Flats for ', '');
                         const owner = owners.find(o => (o.ownerName || o.name) === currentOwnerName);
                          if(owner && owner.id === currentOwnerId) { 
                             renderOwnerFlatsPanel(currentOwnerId, currentOwnerName); 

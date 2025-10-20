@@ -1,0 +1,1543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-R">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RSG Multiservice SRLS - Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #111827; /* bg-gray-900 */
+        }
+        /* New Dark Mode Form Input */
+        .form-input-new {
+            background-color: #374151; /* bg-gray-700 */
+            border: 1px solid #4B5563; /* bg-gray-600 */
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .form-input-new:focus {
+            box-shadow: 0 0 0 2px #c53030; /* Red focus */
+            border-color: #c53030;
+            outline: none;
+        }
+        
+        /* Sidebar Link Styles */
+        .admin-sidebar-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            color: #D1D5DB; /* gray-300 */
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .admin-sidebar-link:hover {
+            background-color: #374151; /* gray-700 */
+            color: white;
+        }
+         .admin-sidebar-link.active {
+            background-color: #4B5563; /* gray-600 */
+            color: white;
+            font-weight: 600;
+        }
+        .admin-sidebar-link svg {
+            margin-right: 0.75rem;
+            flex-shrink: 0;
+            width: 1.25rem; /* 20px */
+            height: 1.25rem; /* 20px */
+            color: #9CA3AF; /* gray-400 */
+        }
+        .admin-sidebar-link.active svg {
+            color: white;
+        }
+
+        /* New Stat Card Styles (Dark) */
+        .stat-card {
+            background-color: #1F2937; /* bg-gray-800 */
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+        }
+        .stat-icon-wrapper {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 3rem; /* 48px */
+            height: 3rem; /* 48px */
+            border-radius: 9999px; /* full */
+            margin-right: 1rem;
+        }
+        .stat-icon-wrapper.bg-blue-100 { background-color: #374151; color: #60A5FA; }
+        .stat-icon-wrapper.bg-green-100 { background-color: #374151; color: #34D399; }
+        .stat-icon-wrapper.bg-yellow-100 { background-color: #374151; color: #F59E0B; }
+        .stat-icon-wrapper.bg-purple-100 { background-color: #374151; color: #A78BFA; }
+
+        /* Toast (unchanged) */
+        #global-toast {
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+        }
+
+        /* New Action Button Pills */
+        .action-pill {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem; /* 12px */
+            font-weight: 500;
+            color: white;
+            transition: opacity 0.2s;
+        }
+        .action-pill:hover {
+            opacity: 0.8;
+        }
+
+        /* Button style for Top Bar */
+        .top-bar-button {
+             background-color: #4a5568; /* Same as Logout */
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+        .top-bar-button:hover {
+             background-color: #6a7588; /* Same hover as Logout */
+        }
+        /* Style for the change button in manager table */
+         .change-assignment-table-btn {
+            background-color: #3e4a61; /* Original button color */
+            color: #f0f0f0;
+            border: none;
+            padding: 4px 10px; /* Smaller padding */
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem; /* Smaller font */
+            font-weight: 500;
+            margin-left: 8px; /* Space between name and button */
+        }
+        .change-assignment-table-btn:hover {
+            background-color: #4a5568;
+        }
+         /* Style for buttons within flat item card */
+        .flat-action-button {
+            padding: 6px 12px;
+            background-color: #374151; /* gray-700 */
+            color: white;
+           
+            border: none;
+            cursor: pointer;
+        }
+
+    </style>
+</head>
+<body class="bg-gray-900"> <div id="app-container" class="w-full min-h-screen">
+        
+        <div id="loader" class="hidden fixed inset-0 flex flex-col items-center justify-center bg-gray-900 z-50">
+            <svg class="animate-spin h-10 w-10 text-red-700 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <p class="mt-2 text-gray-400">Loading...</p>
+        </div>
+
+        <div id="auth-container" class="w-full min-h-screen flex items-center justify-center p-4">
+
+            <div id="login-view" class="hidden w-full max-w-md mx-auto">
+                <div class="bg-gray-800 p-8 rounded-2xl shadow-lg">
+                    <div class="text-center">
+                        <img src="splash_logo.png" alt="Logo" class="mx-auto mb-4 rounded">
+                        <h1 id="login-title" class="text-3xl font-bold text-white">Admin Login</h1>
+                        <p class="text-gray-400 mt-2">Please sign in to your admin account.</p>
+                    </div>
+
+                    <form id="login-form" class="mt-8 space-y-6">
+                        <div id="login-error" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative" role="alert">
+                            <strong class="font-bold">Error!</strong>
+                            <span id="login-error-message" class="block sm:inline"></span>
+                        </div>
+                        
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-300">Email</label>
+                            <div class="mt-1">
+                                <input type="email" id="email" placeholder="you@example.com" class="form-input-new w-full p-3 rounded-lg" required>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="password" class="block text-sm font-medium text-gray-300">Password</label>
+                            <div class="mt-1">
+                                <input type="password" id="password" placeholder="Password" class="form-input-new w-full p-3 rounded-lg" required>
+                            </div>
+                        </div>
+
+                        <button type="submit" id="login-button" class="w-full text-lg bg-red-700 text-white py-4 px-6 rounded-xl shadow hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-transform transform hover:scale-105">
+                            Login
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div id="dashboard-view" class="hidden w-full h-full">
+            
+            <div id="admin-dashboard-content" class="hidden md:flex w-full h-screen">
+                <nav id="admin-sidebar" class="w-64 bg-gray-800 text-white p-4 flex flex-col flex-shrink-0">
+                    <div class="flex items-center mb-8">
+                         <img src="splash_logo.png" alt="Logo" class="h-10 mr-3">
+                         <h1 class="text-xl font-bold text-white">Admin Panel</h1>
+                    </div>
+                    <div class="flex-grow space-y-2">
+                        <a href="#view-owners" class="admin-sidebar-link active">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" /></svg>
+                            <span>Owners</span>
+                        </a>
+                         <a href="#view-managers" class="admin-sidebar-link">
+                           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" clip-rule="evenodd" /></svg>
+                            <span>Managers</span>
+                        </a>
+                        <a href="#view-staff" class="admin-sidebar-link">
+                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" /></svg>
+                            <span>Staff</span>
+                        </a>
+
+                        <div class="border-t border-gray-700 my-4"></div>
+                        <a href="#assign-manager" class="admin-sidebar-link">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" /></svg>
+                            <span>Assign Manager</span>
+                        </a>
+                        <a href="#assign-staff" class="admin-sidebar-link">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" /></svg>
+                            <span>Assign Staff</span>
+                        </a>
+                    </div>
+                </nav>
+
+                <div class="flex-1 flex flex-col overflow-hidden">
+                    <main id="admin-main-content" class="flex-1 p-6 md:p-10 overflow-y-auto bg-gray-900">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+                            <h1 id="admin-main-title" class="text-3xl font-bold text-white">Dashboard</h1>
+                            <div class="flex items-center space-x-4 mt-4 sm:mt-0">
+                                <span id="admin-welcome-message" class="text-md font-medium text-gray-300">Welcome, Admin!</span>
+                                <button class="top-bar-button" onclick="window.location.href='dashboard.html'">
+                                    Go to Main Menu
+                                </button>
+                                <button id="admin-logout-button" class="top-bar-button">
+                                    Logout
+                                </button>
+                            </div>
+                             </div>
+                        
+                        <div id="admin-page-content">
+                            </div>
+                    </main>
+                </div>
+            </div>
+
+            <div id="admin-dashboard-mobile" class="hidden md:hidden max-w-lg mx-auto p-4 bg-gray-900 min-h-screen">
+                <header class="flex justify-between items-center mb-6">
+                    <div>
+                         <h1 class="text-2xl font-bold text-white">Admin Panel</h1>
+                         <p id="admin-mobile-subtitle" class="text-gray-400 mt-1"></p>
+                    </div>
+                    <button id="admin-mobile-logout-button" class="bg-gray-700 text-white py-2 px-4 rounded-lg shadow hover:bg-gray-600">
+                        Logout
+                    </button>
+                </header>
+                 <div class="text-white">
+                    <div class="mt-8">
+                        <h2 class="text-sm font-bold uppercase text-gray-500 mb-3 tracking-wider">Menu</h2>
+                        <div class="space-y-2">
+                             <a href="#view-owners" class="admin-sidebar-link active">...<span>Owners</span></a>
+                             <a href="#view-managers" class="admin-sidebar-link">...<span>Managers</span></a>
+                             <a href="#view-staff" class="admin-sidebar-link">...<span>Staff</span></a>
+
+                            <div class="border-t border-gray-700 my-4"></div>
+                             <a href="#assign-manager" class="admin-sidebar-link">...<span>Assign Manager</span></a>
+                             <a href="#assign-staff" class="admin-sidebar-link">...<span>Assign Staff</span></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    
+    <div id="modal-view" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50">
+        <div class="bg-gray-800 w-full max-w-lg rounded-2xl shadow-lg max-h-[90vh] flex flex-col">
+            <header id="modal-header" class="p-4 flex justify-between items-center sticky top-0 bg-red-700 text-white rounded-t-2xl">
+                <h2 id="modal-title" class="text-xl font-bold">Modal Title</h2>
+                <button id="modal-close-button" class="text-white hover:text-gray-200 text-3xl leading-none">&times;</button>
+            </header>
+            <div id="modal-content" class="p-6 overflow-y-auto text-gray-200">
+                </div>
+        </div>
+    </div>
+
+    <div id="global-toast" class="hidden fixed bottom-5 right-5 bg-green-500 text-white py-3 px-5 rounded-lg shadow-lg transform translate-y-4 opacity-0">
+        Success!
+    </div>
+
+
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp, deleteApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { 
+            getAuth, 
+            onAuthStateChanged, 
+            signInWithEmailAndPassword, 
+            signOut,
+            createUserWithEmailAndPassword
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { 
+            getFirestore, 
+            collection, 
+            query, 
+            where, 
+            getDocs,
+            addDoc,
+            updateDoc,
+            doc,
+            setDoc,
+            collectionGroup,
+            deleteDoc,
+            arrayUnion
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAxyGsVS9cuuv2bkwWKcj3ZgQPzIA5T15w",
+            authDomain: "plats-83345.firebaseapp.com",
+            projectId: "plats-83345",
+            storageBucket: "plats-83345.appspot.com",
+            messagingSenderId: "619656775053",
+            appId: "1:619656775053:web:25249b178c03afba52e9c4",
+            measurementId: "G-WKPK539FW6"
+        };
+        
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // DOM Elements
+        const loader = document.getElementById('loader');
+        const authContainer = document.getElementById('auth-container');
+        const loginView = document.getElementById('login-view');
+        const dashboardView = document.getElementById('dashboard-view');
+        const loginForm = document.getElementById('login-form');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const loginError = document.getElementById('login-error');
+        const loginErrorMessage = document.getElementById('login-error-message');
+        
+        // Admin Elements
+        const adminDashboardContent = document.getElementById('admin-dashboard-content');
+        const adminDashboardMobile = document.getElementById('admin-dashboard-mobile');
+        const adminMainContent = document.getElementById('admin-main-content');
+        const adminMainTitle = document.getElementById('admin-main-title');
+        const adminPageContent = document.getElementById('admin-page-content');
+        const adminMobileLogoutButton = document.getElementById('admin-mobile-logout-button');
+
+        const modalView = document.getElementById('modal-view');
+        const modalTitle = document.getElementById('modal-title');
+        const modalContent = document.getElementById('modal-content');
+        const modalCloseButton = document.getElementById('modal-close-button');
+        const globalToast = document.getElementById('global-toast');
+
+        // App state
+        const views = { loader, auth: authContainer, dashboard: dashboardView };
+        let currentUsers = []; // To store users for searching
+        
+        // --- VIEW MANAGEMENT ---
+        function showView(viewName) {
+            Object.values(views).forEach(view => view.classList.add('hidden'));
+            if (views[viewName]) views[viewName].classList.remove('hidden');
+        }
+
+        // --- AUTHENTICATION ---
+        onAuthStateChanged(auth, user => {
+            if (user) {
+                fetchAndDisplayDashboardData(user);
+            } else {
+                showView('auth');
+                loginView.classList.remove('hidden'); // Show login view directly
+                emailInput.value = '';
+                passwordInput.value = '';
+            }
+        });
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = emailInput.value;
+            const password = passwordInput.value;
+            const loginButton = document.getElementById('login-button');
+            loginButton.disabled = true;
+            loginButton.innerHTML = `<svg class="animate-spin h-5 w-5 text-white mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
+            loginError.classList.add('hidden');
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+            } catch (error) {
+                loginErrorMessage.textContent = error.message;
+                loginError.classList.remove('hidden');
+            } finally {
+                loginButton.disabled = false;
+                loginButton.innerHTML = 'Login';
+            }
+        });
+
+        adminMobileLogoutButton.addEventListener('click', () => signOut(auth));
+
+        // --- DATA FETCHING & DISPLAY ---
+        async function fetchAndDisplayDashboardData(user) {
+            showView('loader');
+            try {
+                const userDocSnap = await getDocs(query(collection(db, "users"), where("email", "==", user.email)));
+                if (userDocSnap.empty) throw new Error("User profile not found in database.");
+
+                const userDoc = userDocSnap.docs[0];
+                const userData = userDoc.data();
+                const userRole = userData.role;
+
+                if (userData.disabled === true) {
+                    showToast("This account has been disabled.", "error");
+                    setTimeout(() => signOut(auth), 1000);
+                    throw new Error("Account disabled.");
+                }
+                if (!userRole) throw new Error("User profile is missing a role.");
+                
+                const displayName = userData.name || userData.ownerName || userData.managerName || userData.staffName || user.email;
+                
+                if (userRole === 'ADMIN') {
+                    adminDashboardContent.classList.remove('hidden');
+                    adminDashboardMobile.classList.remove('hidden');
+                    document.getElementById('admin-mobile-subtitle').textContent = `Logged in as ${displayName}`;
+                    
+                    document.getElementById('admin-welcome-message').textContent = `Welcome, ${displayName}!`;
+                    document.getElementById('admin-logout-button').addEventListener('click', () => signOut(auth));
+
+                    setupAdminDashboardListeners();
+                    // Set default view to #view-owners
+                    const defaultHash = window.location.hash || '#view-owners';
+                    handleHashChange(defaultHash);
+                    
+                    showView('dashboard'); // Show dashboard
+                } else {
+                    throw new Error("Access Denied: Only administrators may log in.");
+                }
+                
+            } catch (error) {
+                console.error("Error fetching data:", error);
+                 if (error.message.includes("Access Denied")) {
+                    showToast(error.message, 'error');
+                    setTimeout(() => signOut(auth), 1000);
+                } else if (error.message !== "Account disabled.") {
+                   signOut(auth);
+                   alert("Error loading your data. Please log in again. " + error.message);
+                }
+            }
+        }
+
+        // --- MODAL & UI LOGIC ---
+        function openModal(title, content) {
+            modalTitle.textContent = title;
+            modalContent.innerHTML = '';
+            modalContent.appendChild(content);
+            modalView.classList.remove('hidden');
+        }
+        modalCloseButton.addEventListener('click', () => modalView.classList.add('hidden'));
+
+        function showToast(message, type = 'success') {
+            globalToast.textContent = message;
+            globalToast.classList.remove('bg-green-500', 'bg-red-500', 'hidden', 'opacity-0', 'translate-y-4');
+            globalToast.classList.add(type === 'success' ? 'bg-green-500' : 'bg-red-500', 'opacity-100', 'translate-y-0');
+
+            setTimeout(() => {
+                globalToast.classList.remove('opacity-100', 'translate-y-0');
+                globalToast.classList.add('opacity-0', 'translate-y-4');
+                setTimeout(() => globalToast.classList.add('hidden'), 300);
+            }, 3000);
+        }
+        
+       // --- ADMIN PANEL ROUTING & CONTENT ---
+
+        function handleHashChange(hash) {
+             const sidebarLinks = document.querySelectorAll('.admin-sidebar-link[href^="#view-"]');
+             sidebarLinks.forEach(l => l.classList.remove('active'));
+             
+             let activeLink = document.querySelector(`.admin-sidebar-link[href="${hash}"]`);
+             if (!activeLink || !hash.startsWith("#view-")) {
+                 // Fallback to owners if hash is invalid or a modal hash
+                 activeLink = document.querySelector('.admin-sidebar-link[href="#view-owners"]');
+                 hash = '#view-owners';
+             }
+              if (activeLink) activeLink.classList.add('active'); // Check if activeLink exists
+
+             const target = hash.substring(1);
+             switch(target) {
+                case 'view-owners': 
+                    adminMainTitle.textContent = 'Owners';
+                    renderUserListInPanel('OWNER'); 
+                    break;
+                case 'view-managers': 
+                    adminMainTitle.textContent = 'Managers';
+                    renderUserListInPanel('CONDOMINIUM_MANAGER'); 
+                    break;
+                case 'view-staff': 
+                    adminMainTitle.textContent = 'Staff';
+                    renderUserListInPanel('STAFF'); 
+                    break;
+                default:
+                    adminMainTitle.textContent = 'Owners';
+                    renderUserListInPanel('OWNER');
+            }
+        }
+
+        function setupAdminDashboardListeners() {
+            // --- PAGE LINKS ---
+            const pageLinks = document.querySelectorAll('.admin-sidebar-link[href^="#view-"]');
+            pageLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const hash = link.getAttribute('href');
+                    window.location.hash = hash;
+                    handleHashChange(hash);
+                });
+            });
+
+            // --- MODAL LINKS ---
+            const assignManagerLinks = document.querySelectorAll('a[href="#assign-manager"]');
+            assignManagerLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    // Deselect active page link
+                    document.querySelectorAll('.admin-sidebar-link[href^="#view-"]').forEach(l => l.classList.remove('active'));
+                    showAssignManagerModal();
+                });
+            });
+
+            const assignStaffLinks = document.querySelectorAll('a[href="#assign-staff"]');
+            assignStaffLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    // Deselect active page link
+                    document.querySelectorAll('.admin-sidebar-link[href^="#view-"]').forEach(l => l.classList.remove('active'));
+                    showAssignCleanerModal(); // Call the existing cleaner/staff modal
+                });
+            });
+        }
+
+        
+        // --- MODAL CONTENT GENERATORS & ACTIONS ---
+
+        const roleMap = {
+            OWNER: { name: 'Flat Owner', hasPassword: true, nameField: 'ownerName' },
+            CONDOMINIUM_MANAGER: { name: 'Manager', hasPassword: true, nameField: 'managerName' },
+            STAFF: { name: 'Cleaner', hasPassword: true, nameField: 'staffName' },
+            ADMIN: { name: 'Administrator', hasPassword: true, nameField: 'name' }
+        };
+
+        // Dark Mode Create User Form
+        function getCreateUserFormElement(role) {
+            const roleConfig = roleMap[role];
+            if (!roleConfig) return document.createElement('div');
+
+            const roleName = roleConfig.name;
+            const formContainer = document.createElement('div');
+            
+            let ownerSpecificHTML = '';
+            if (role === 'OWNER') {
+                ownerSpecificHTML = `
+                    <h3 class="text-lg font-semibold border-t border-gray-700 pt-4 mt-4 text-gray-200">Condominium Details</h3>
+                    <div id="condo-list" class="space-y-3 max-h-48 overflow-y-auto pr-2"></div>
+                    <button type="button" id="add-condo-btn" class="w-full text-center text-red-500 font-semibold border-2 border-dashed border-red-800 p-2 rounded-lg hover:bg-gray-700 transition-colors">
+                        + Add New Flat
+                    </button>`;
+            }
+            
+            const passwordField = roleConfig.hasPassword ? `<input type="password" name="password" placeholder="Password (min. 6 characters)" class="w-full p-3 border-gray-600 rounded-lg form-input-new" required>` : '';
+            const submitButtonText = role === 'OWNER' ? 'Save Owner and Flats' : `Save ${roleName}`;
+            
+            formContainer.innerHTML = `<form id="create-user-form" class="space-y-4">
+                <input type="text" name="name" placeholder="${roleName}'s Full Name" class="w-full p-3 border-gray-600 rounded-lg form-input-new" required>
+                <input type="email" name="email" placeholder="Email" class="w-full p-3 border-gray-600 rounded-lg form-input-new" required>
+                ${passwordField}
+                <input type="text" name="telephone" placeholder="Telephone" class="w-full p-3 border-gray-600 rounded-lg form-input-new">
+                ${ownerSpecificHTML}
+                <button type="submit" class="w-full bg-red-700 text-white p-3 rounded-lg hover:bg-red-800 transition-colors">${submitButtonText}</button>
+            </form>`;
+
+            if (role === 'OWNER') {
+                const addCondoBtn = formContainer.querySelector('#add-condo-btn');
+                const condoList = formContainer.querySelector('#condo-list');
+                const addCondoInput = () => {
+                    const newCondoDiv = document.createElement('div');
+                    newCondoDiv.className = 'p-3 border border-gray-700 rounded-lg bg-gray-700 space-y-2 relative';
+                    newCondoDiv.innerHTML = `
+                        <input type="text" name="condominiumName" placeholder="Condominium Name" class="w-full p-2 border-gray-600 rounded-md form-input-new" required>
+                        <input type="text" name="address" placeholder="Address" class="w-full p-2 border-gray-600 rounded-md form-input-new" required>
+                        <button type="button" class="remove-condo-btn absolute -top-2 -right-2 bg-red-500 text-white rounded-full h-6 w-6 flex items-center justify-center text-xs font-bold leading-none">&times;</button>`;
+                    condoList.appendChild(newCondoDiv);
+                    newCondoDiv.querySelector('.remove-condo-btn').addEventListener('click', () => newCondoDiv.remove());
+                };
+                addCondoBtn.addEventListener('click', addCondoInput);
+                addCondoInput(); // Add one by default
+            }
+
+            formContainer.querySelector('form').addEventListener('submit', async (e) => {
+                 e.preventDefault();
+                const form = e.target;
+                const submitButton = form.querySelector('button[type="submit"]');
+                submitButton.disabled = true;
+                submitButton.textContent = 'Saving...';
+
+                const name = form.name.value;
+                const email = form.email.value;
+                const password = roleConfig.hasPassword ? form.password.value : null;
+                const telephone = form.telephone.value;
+
+                try {
+                    let newUserUid;
+                    if (roleConfig.hasPassword && password) {
+                        const tempAppName = `creation-${Date.now()}`;
+                        const tempApp = initializeApp(firebaseConfig, tempAppName);
+                        const tempAuth = getAuth(tempApp);
+                        try {
+                            const userCredential = await createUserWithEmailAndPassword(tempAuth, email, password);
+                            newUserUid = userCredential.user.uid;
+                        } finally {
+                            await deleteApp(tempApp);
+                        }
+                    }
+
+                    const userData = { email, telephone, role, createdAt: new Date() };
+                    userData[roleConfig.nameField] = name;
+                    
+                    const userRef = newUserUid ? doc(db, 'users', newUserUid) : doc(collection(db, 'users'));
+                    await setDoc(userRef, userData);
+                    if (!newUserUid) newUserUid = userRef.id;
+
+                    if (role === 'OWNER') {
+                        const condoInputs = form.querySelectorAll('#condo-list > div');
+                        for (const condoDiv of condoInputs) {
+                            const condominiumName = condoDiv.querySelector('[name="condominiumName"]').value;
+                            const address = condoDiv.querySelector('[name="address"]').value;
+                            if (condominiumName && address) {
+                                await addDoc(collection(db, "condominiums"), {
+                                    condominiumName, address, ownerId: newUserUid, ownerName: name, createdAt: new Date(),
+                                    managerId: '', managerName: '', assignedStaffUids: []
+                                });
+                            }
+                        }
+                    }
+                    
+                    showToast('User created successfully!');
+                    modalView.classList.add('hidden'); 
+                    handleHashChange(window.location.hash); // Refresh current view
+
+                } catch (error) {
+                    console.error("Error creating user:", error);
+                    let errorMessage = error.message;
+                    if (error.code === 'auth/email-already-in-use') errorMessage = 'This email is already registered.';
+                    else if (error.code === 'auth/weak-password') errorMessage = 'Password is too weak.';
+                    alert('Error: ' + errorMessage);
+                } finally {
+                    submitButton.disabled = false;
+                    submitButton.textContent = submitButtonText;
+                }
+            });
+            return formContainer;
+        }
+
+        function showCreateUserModal(role) {
+            const formEl = getCreateUserFormElement(role);
+            openModal(`Create New ${roleMap[role].name}`, formEl);
+        }
+
+        // --- NEW TABLE-BASED USER LISTS ---
+
+        async function renderUserListInPanel(role) {
+            const roleConfig = roleMap[role];
+            if (!roleConfig) return;
+            
+            // --- CHANGE: Add Owner filter and chained Flat filter for Managers ---
+            let filterHtml = '';
+            if (role === 'CONDOMINIUM_MANAGER') {
+                filterHtml = `
+                    <div class="relative flex-grow">
+                        <select id="owner-filter-select" class="form-input-new w-full p-3 rounded-lg">
+                            <option value="">Filter by Owner...</option>
+                        </select>
+                    </div>
+                    <div class="relative flex-grow">
+                        <select id="flat-filter-select" class="form-input-new w-full p-3 rounded-lg" disabled>
+                            <option value="">Select an Owner first...</option>
+                        </select>
+                    </div>
+                `;
+            }
+
+            adminPageContent.innerHTML = `
+                <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                    <div class="relative flex-grow">
+                        <input type="search" id="user-search-input" placeholder="Search by name or email..." class="form-input-new w-full p-3 pl-10 rounded-lg">
+                        <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" /></svg>
+                    </div>
+                    ${filterHtml} 
+                    <button id="add-new-user-btn" class="w-full sm:w-auto flex-shrink-0 flex items-center justify-center px-5 py-3 bg-red-700 text-white rounded-lg shadow hover:bg-red-800 transition-colors font-semibold">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" /></svg>
+                        <span>Add New ${roleConfig.name}</span>
+                    </button>
+                </div>
+                <div class="bg-gray-800 rounded-lg shadow overflow-hidden">
+                    <table class="min-w-full divide-y divide-gray-700">
+                        <thead class="bg-gray-900">
+                            <tr id="table-header-row">
+                                </tr>
+                        </thead>
+                        <tbody id="table-body" class="bg-gray-800 divide-y divide-gray-700">
+                            <tr><td colspan="5" class="p-4 text-center text-gray-400">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>`;
+            
+            adminPageContent.querySelector('#add-new-user-btn').addEventListener('click', () => {
+                showCreateUserModal(role); 
+            });
+
+            const searchInput = adminPageContent.querySelector('#user-search-input');
+            const tableHead = adminPageContent.querySelector('#table-header-row');
+            const tableBody = adminPageContent.querySelector('#table-body');
+
+            try {
+                // Fetch users and condos/owners in parallel
+                 const [querySnapshot, condosSnapshot, ownersSnapshot] = await Promise.all([
+                    getDocs(query(collection(db, "users"), where("role", "==", role))),
+                    getDocs(collection(db, "condominiums")), // Needed for manager's assigned flat & filter
+                    getDocs(query(collection(db, "users"), where("role", "==", "OWNER"))) // Needed for manager filter
+                 ]);
+
+                currentUsers = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                
+                let allCondos = condosSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); 
+                let allOwners = ownersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                // --- CHANGE: Populate filters for MANAGERS page ---
+                if (role === 'CONDOMINIUM_MANAGER') {
+                    const ownerFilterSelect = adminPageContent.querySelector('#owner-filter-select');
+                    const flatFilterSelect = adminPageContent.querySelector('#flat-filter-select');
+                    
+                    // Populate the owner filter
+                    allOwners.forEach(owner => {
+                        ownerFilterSelect.innerHTML += `<option value="${owner.id}">${owner.ownerName || owner.name}</option>`;
+                    });
+
+                    // Add listener for Owner filter
+                    ownerFilterSelect.addEventListener('change', () => {
+                        const selectedOwnerId = ownerFilterSelect.value;
+                        flatFilterSelect.innerHTML = '<option value="">Filter by assigned flat...</option>'; // Reset flat filter
+                        
+                        if (selectedOwnerId) {
+                            // Filter condos based on selected owner
+                            const ownerFlats = allCondos.filter(c => c.ownerId === selectedOwnerId);
+                            if (ownerFlats.length > 0) {
+                                ownerFlats.forEach(condo => {
+                                    flatFilterSelect.innerHTML += `<option value="${condo.id}">${condo.condominiumName}</option>`;
+                                });
+                                flatFilterSelect.disabled = false;
+                            } else {
+                                flatFilterSelect.innerHTML = '<option value="">Owner has no flats</option>';
+                                flatFilterSelect.disabled = true;
+                            }
+                        } else {
+                            // Owner filter reset
+                            flatFilterSelect.innerHTML = '<option value="">Select an Owner first...</option>';
+                            flatFilterSelect.disabled = true;
+                        }
+                        applyFiltersAndRender(); // Re-filter managers when owner changes (or is reset)
+                    });
+                }
+                
+                // --- New central filter function ---
+                function applyFiltersAndRender() {
+                    const searchTerm = searchInput.value.toLowerCase();
+                    
+                    const ownerFilterSelect = adminPageContent.querySelector('#owner-filter-select');
+                    const flatFilterSelect = adminPageContent.querySelector('#flat-filter-select');
+                    const selectedOwnerId = (role === 'CONDOMINIUM_MANAGER' && ownerFilterSelect) ? ownerFilterSelect.value : '';
+                    const selectedCondoId = (role === 'CONDOMINIUM_MANAGER' && flatFilterSelect) ? flatFilterSelect.value : '';
+
+                    let filteredUsers = currentUsers.filter(user => !user.disabled);
+
+                    // --- CHANGE: Updated Filter Logic ---
+                    // 1. Apply Flat Filter (Most specific)
+                    if (role === 'CONDOMINIUM_MANAGER' && selectedCondoId) {
+                        const selectedCondo = allCondos.find(c => c.id === selectedCondoId);
+                        if (selectedCondo && selectedCondo.managerId) {
+                            filteredUsers = filteredUsers.filter(m => m.id === selectedCondo.managerId);
+                        } else if (selectedCondo) { // Flat exists but no manager
+                            filteredUsers = []; // Show no managers
+                        }
+                        // If "Filter by..." is selected, this block is skipped.
+
+                    // 2. Apply Owner Filter (If no specific flat is selected)
+                    } else if (role === 'CONDOMINIUM_MANAGER' && selectedOwnerId) {
+                        // Find all manager IDs for this owner's flats
+                        const managerIdsForOwner = allCondos
+                            .filter(c => c.ownerId === selectedOwnerId && c.managerId) // Get owner's flats that have a manager
+                            .map(c => c.managerId); // Get the managerId
+                        
+                        const uniqueManagerIds = [...new Set(managerIdsForOwner)]; // Get unique manager IDs
+                        
+                        filteredUsers = filteredUsers.filter(m => uniqueManagerIds.includes(m.id));
+                    }
+                    // --- End of new logic ---
+
+
+                    // 3. Apply Search Filter (Last)
+                    if (searchTerm) {
+                        filteredUsers = filteredUsers.filter(user => {
+                            const name = (user[roleConfig.nameField] || user.name || '').toLowerCase();
+                            const email = (user.email || '').toLowerCase();
+                            return name.includes(searchTerm) || email.includes(searchTerm);
+                        });
+                    }
+                    
+                    // --- CHANGE: Pass allCondos to renderUserTableRows ---
+                    renderUserTableRows(tableHead, tableBody, filteredUsers, role, allCondos);
+                }
+
+                // Initial Render
+                applyFiltersAndRender(); 
+
+                // Add listener to search input
+                searchInput.addEventListener('input', applyFiltersAndRender);
+
+                // Add listener to flat filter (if it exists)
+                if (role === 'CONDOMINIUM_MANAGER') {
+                    adminPageContent.querySelector('#flat-filter-select').addEventListener('change', applyFiltersAndRender);
+                }
+                // --- End of filter logic change ---
+
+
+            } catch (error) {
+                 console.error("Error rendering user list:", error); // Added more detailed logging
+                tableBody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-red-400">Error: ${error.message}</td></tr>`;
+            }
+        }
+
+        // --- CHANGE: Add 'condos' parameter ---
+        function renderUserTableRows(thead, tbody, users, role, condos = []) {
+            thead.innerHTML = '';
+            tbody.innerHTML = '';
+            const roleConfig = roleMap[role];
+            
+            // --- CHANGE: Adjust colspan based on role ---
+             let colspanValue = 5; 
+             if (role === 'CONDOMINIUM_MANAGER') colspanValue = 6;
+            // --- End Change ---
+
+            if (!users || users.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="${colspanValue}" class="p-4 text-center text-gray-400">No users found matching your criteria.</td></tr>`; // Use colspanValue
+                return;
+            }
+
+            let headers = [];
+            
+            // Define headers and row content based on role
+            switch(role) {
+                case 'STAFF':
+                    headers = ['Name', 'Email', 'Telephone', 'Total Points', 'Actions'];
+                    break;
+                case 'OWNER':
+                    headers = ['Name', 'Email', 'Telephone', 'Actions'];
+                    break;
+                case 'CONDOMINIUM_MANAGER':
+                    // --- CHANGE: Add Assigned Flat header ---
+                    headers = ['Name', 'Email', 'Telephone', 'Assigned Flat', 'Actions']; 
+                    break;
+            }
+
+            // Render Headers
+            headers.forEach(header => {
+                const th = document.createElement('th');
+                th.scope = 'col';
+                th.className = 'px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider';
+                th.textContent = header;
+                thead.appendChild(th);
+            });
+
+            // Render Body Rows
+            users.forEach(user => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-gray-700';
+
+                const displayName = user[roleConfig.nameField] || user.name || 'N/A';
+                const displayEmail = user.email || 'N/A';
+                const displayPhone = user.telephone || 'N/A';
+
+                let cells = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">${displayName}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">${displayEmail}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">${displayPhone}</td>
+                `;
+
+                let actions = '';
+                if (role === 'STAFF') {
+                    cells += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">${user.totalPoints || 0}</td>`;
+                    actions = `
+                        <button class="staff-flats-btn action-pill bg-green-600">Flats</button>
+                        <button class="staff-points-btn action-pill bg-yellow-500">Points</button>
+                        <button class="staff-info-btn action-pill bg-blue-500">Info</button>
+                    `;
+                } else if (role === 'OWNER') {
+                    actions = `
+                        <button class="owner-flats-btn action-pill bg-blue-500">View Flats</button>
+                        <button class="owner-edit-btn action-pill bg-yellow-500">Edit</button>
+                        <button class="owner-delete-btn action-pill bg-red-600">Delete</button>
+                    `;
+                } else if (role === 'CONDOMINIUM_MANAGER') {
+                    // --- CHANGE: Find and display assigned flat ---
+                    const assignedCondo = condos.find(c => c.managerId === user.id);
+                    let assignedFlatCell = '<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">Not Assigned</td>'; // Default
+                    
+                    if (assignedCondo) {
+                        assignedFlatCell = `
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                                ${assignedCondo.condominiumName || 'Unknown Flat'}
+                                <button 
+                                    class="change-assignment-table-btn" 
+                                    data-manager-id="${user.id}" 
+                                    data-condo-id="${assignedCondo.id}" 
+                                    data-owner-id="${assignedCondo.ownerId}"
+                                >
+                                    Change
+                                </button>
+                            </td>
+                        `;
+                    }
+                    cells += assignedFlatCell;
+                    // --- End Change ---
+
+                    actions = `
+                        <button class="manager-edit-btn action-pill bg-yellow-500">Edit</button>
+                        <button class="manager-delete-btn action-pill bg-red-600">Delete</button>
+                    `;
+                }
+
+                cells += `<td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">${actions}</td>`;
+                tr.innerHTML = cells;
+                tbody.appendChild(tr);
+
+                // Add event listeners
+                if (role === 'STAFF') {
+                    tr.querySelector('.staff-flats-btn').addEventListener('click', () => showStaffFlatsModal(user.id, displayName));
+                    tr.querySelector('.staff-points-btn').addEventListener('click', () => showCleanerDetailsModal(user.id, displayName));
+                    tr.querySelector('.staff-info-btn').addEventListener('click', () => {
+                        window.location.href = `reviews.html?staffId=${user.id}`;
+                    });
+                } else if (role === 'OWNER') {
+                    tr.querySelector('.owner-flats-btn').addEventListener('click', () => renderOwnerFlatsPanel(user.id, displayName));
+                    tr.querySelector('.owner-edit-btn').addEventListener('click', () => showEditUserModal(user.id, user, role));
+                    tr.querySelector('.owner-delete-btn').addEventListener('click', () => confirmDeleteUser(user.id, displayName, role));
+                } else if (role === 'CONDOMINIUM_MANAGER') {
+                    tr.querySelector('.manager-edit-btn').addEventListener('click', () => showEditUserModal(user.id, user, role));
+                    tr.querySelector('.manager-delete-btn').addEventListener('click', () => confirmDeleteUser(user.id, displayName, role));
+                    
+                    // --- CHANGE: Add listener for the new Change button ---
+                    const changeBtn = tr.querySelector('.change-assignment-table-btn');
+                    if (changeBtn) {
+                        changeBtn.addEventListener('click', (e) => {
+                            const ownerId = e.target.dataset.ownerId;
+                            const condoId = e.target.dataset.condoId;
+                             // Deselect active page link
+                            document.querySelectorAll('.admin-sidebar-link[href^="#view-"]').forEach(l => l.classList.remove('active'));
+                            showAssignManagerModal(ownerId, condoId);
+                        });
+                    }
+                     // --- End Change ---
+                }
+            });
+        }
+        
+        // --- OWNER FLATS PANEL (Dark Mode) ---
+        
+        async function renderOwnerFlatsPanel(ownerId, ownerName) {
+            adminMainTitle.textContent = `Flats for ${ownerName}`;
+            
+            adminPageContent.innerHTML = `
+                <button id="back-to-owners-btn" class="mb-4 text-red-500 hover:text-red-400 font-medium flex items-center">
+                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
+                    Back to Owners
+                </button>
+                
+                <div class="relative max-w-5xl mb-4">
+                    <input type="search" id="flat-search-input" placeholder="Search flats by name or address..." class="form-input-new w-full p-3 pl-10 rounded-lg">
+                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" /></svg>
+                </div>
+
+                <div id="flats-list-container" class="space-y-4 max-w-5xl"><p class="text-gray-400">Loading flats...</p></div>
+            `;
+            
+            adminPageContent.querySelector('#back-to-owners-btn').addEventListener('click', () => handleHashChange('#view-owners'));
+            
+            const flatsContainer = adminPageContent.querySelector('#flats-list-container');
+            await renderFlatList(flatsContainer, ownerId);
+        }
+
+        async function renderFlatList(container, ownerId) {
+            try {
+                const q = query(collection(db, "condominiums"), where("ownerId", "==", ownerId));
+                const querySnapshot = await getDocs(q);
+                
+                if (querySnapshot.empty) {
+                    container.innerHTML = '<p class="text-gray-400">This owner has no registered flats.</p>';
+                    return;
+                }
+
+                const allFlats = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                function displayFlats(filteredFlats) {
+                    container.innerHTML = ''; // Clear container
+                    
+                    if (filteredFlats.length === 0) {
+                        container.innerHTML = '<p class="text-gray-400">No flats match your search.</p>';
+                        return;
+                    }
+
+                    filteredFlats.forEach(condo => {
+                        const managerName = condo.managerName || 'Not Assigned';
+                        const managerColor = condo.managerName ? 'text-blue-400' : 'text-gray-500';
+
+                        const flatItem = document.createElement('div');
+                        flatItem.className = 'bg-gray-800 p-4 border border-gray-700 rounded-lg shadow-sm';
+                        // --- CHANGE: Add View Report button and adjust layout ---
+                        flatItem.innerHTML = `
+                            <p class="text-lg font-semibold text-white">${condo.condominiumName}</p>
+                            <p class="text-sm text-gray-400">${condo.address || 'No address'}</p>
+                            <div class="border-t border-gray-700 my-3"></div>
+                            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                                <div>
+                                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Assigned Manager</p>
+                                    <p class="font-semibold ${managerColor}">${managerName}</p>
+                                </div>
+                                <div class="flex items-center space-x-2 flex-shrink-0">
+                                     <button data-condo-id="${condo.id}" class="view-report-btn flat-action-button">
+                                        View Report
+                                    </button>
+                                    <button data-condo-id="${condo.id}" data-owner-id="${ownerId}" class="assign-manager-to-flat-btn flat-action-button">
+                                        Change Manager
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                         // --- End Change ---
+
+                        flatItem.querySelector('.assign-manager-to-flat-btn').addEventListener('click', (e) => {
+                             // Deselect active page link when modal opens from here
+                            document.querySelectorAll('.admin-sidebar-link[href^="#view-"]').forEach(l => l.classList.remove('active'));
+                            showAssignManagerModal(ownerId, condo.id); 
+                        });
+                        
+                        // --- CHANGE: Add listener for View Report button ---
+                        flatItem.querySelector('.view-report-btn').addEventListener('click', (e) => {
+                            window.location.href = `cleaning_reports.html?condoId=${condo.id}`;
+                        });
+                         // --- End Change ---
+
+                        container.appendChild(flatItem);
+                    });
+                }
+                
+                // Initial render
+                displayFlats(allFlats);
+
+                // Add listener to search bar
+                const searchInput = adminPageContent.querySelector('#flat-search-input');
+                if (searchInput) {
+                    searchInput.addEventListener('input', (e) => {
+                        const searchTerm = e.target.value.toLowerCase();
+                        const filtered = allFlats.filter(condo => 
+                            (condo.condominiumName || '').toLowerCase().includes(searchTerm) ||
+                            (condo.address || '').toLowerCase().includes(searchTerm)
+                        );
+                        displayFlats(filtered);
+                    });
+                }
+
+            } catch (error) {
+                console.error("Error loading flats: ", error);
+                container.innerHTML = `<p class="text-red-400">Error loading flats: ${error.message}</p>`;
+            }
+        }
+
+        // --- SHARED USER FUNCTIONS (Edit, Delete) ---
+
+        function showEditUserModal(userId, user, role) {
+            const roleConfig = roleMap[role];
+            const formContent = document.createElement('div');
+            const currentName = user[roleConfig.nameField] || user.name || '';
+            
+            formContent.innerHTML = `<form id="edit-user-form" class="space-y-4">
+                <input type="text" name="name" value="${currentName}" placeholder="${roleConfig.name}'s Full Name" class="w-full p-3 rounded-lg form-input-new" required>
+                <input type="email" name="email" value="${user.email || ''}" placeholder="Email" class="w-full p-3 rounded-lg form-input-new" required>
+                <input type="text" name="telephone" value="${user.telephone || ''}" placeholder="Telephone" class="w-full p-3 rounded-lg form-input-new">
+                <div class="bg-yellow-900 bg-opacity-50 text-yellow-300 p-3 rounded-lg text-sm">Note: Email cannot be changed from this panel for security reasons.</div>
+                <button type="submit" class="w-full bg-red-700 text-white p-3 rounded-lg hover:bg-red-800">Save Changes</button>
+            </form>`;
+            
+            formContent.querySelector('input[name="email"]').disabled = true;
+
+            formContent.querySelector('form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const form = e.target;
+                const updatedData = {
+                    telephone: form.telephone.value
+                };
+                updatedData[roleConfig.nameField] = form.name.value;
+
+                try {
+                    await updateDoc(doc(db, 'users', userId), updatedData);
+                    showToast('User updated successfully!');
+                    modalView.classList.add('hidden'); 
+                    handleHashChange(window.location.hash); // Refresh
+                } catch (error) {
+                    alert('Error updating user: ' + error.message);
+                }
+            });
+
+            openModal(`Edit ${roleConfig.name}`, formContent);
+        }
+
+        function confirmDeleteUser(userId, userName, role) {
+            const confirmContent = document.createElement('div');
+            confirmContent.innerHTML = `
+                <p class="text-gray-300">Are you sure you want to delete <strong>${userName}</strong>?</p>
+                <p class="mt-2 text-sm text-gray-400">This will disable their account and prevent them from logging in. The user will be removed from all active lists.</p>
+                <div class="flex justify-end space-x-3 mt-6">
+                    <button id="cancel-delete" class="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600">Cancel</button>
+                    <button id="confirm-delete" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">Yes, Disable User</button>
+                </div>
+            `;
+            openModal('Confirm Deletion', confirmContent);
+
+            confirmContent.querySelector('#cancel-delete').addEventListener('click', () => {
+                 modalView.classList.add('hidden');
+            });
+
+            confirmContent.querySelector('#confirm-delete').addEventListener('click', async () => {
+                try {
+                    await updateDoc(doc(db, "users", userId), { disabled: true });
+                    showToast('User disabled successfully!');
+                    modalView.classList.add('hidden');
+                    handleHashChange(window.location.hash); // Refresh
+                } catch (error) {
+                    alert('Error disabling user: ' + error.message);
+                }
+            });
+        }
+
+        // --- CLEANER & ASSIGNMENT FUNCTIONS ---
+
+        // NEW: Show flats assigned to a specific cleaner
+        async function showStaffFlatsModal(cleanerId, cleanerName) {
+            const detailsContent = document.createElement('div');
+            detailsContent.innerHTML = `<p class="text-gray-400">Loading assigned flats...</p>`;
+            openModal(`Flats Assigned to ${cleanerName}`, detailsContent);
+
+            try {
+                const q = query(collection(db, "condominiums"), where("assignedStaffUids", "array-contains", cleanerId));
+                const querySnapshot = await getDocs(q);
+
+                if (querySnapshot.empty) {
+                    detailsContent.innerHTML = '<p class="text-center text-gray-400 mt-4">This cleaner is not assigned to any flats.</p>';
+                    return;
+                }
+
+                let flatsHTML = '<ul class="space-y-3 mt-4">';
+                querySnapshot.forEach(doc => {
+                    const condo = doc.data();
+                    flatsHTML += `
+                        <li class="p-3 border border-gray-700 bg-gray-700 rounded-lg">
+                            <p class="font-semibold text-white">${condo.condominiumName || 'Unknown Flat'}</p>
+                            <p class="text-sm text-gray-400 mt-1">${condo.address || 'No address'}</p>
+                            <p class="text-sm text-gray-400 mt-1">Owner: ${condo.ownerName || 'N/A'}</p>
+                        </li>
+                    `;
+                });
+                flatsHTML += '</ul>';
+                detailsContent.innerHTML = flatsHTML;
+
+            } catch (error) {
+                console.error("Error fetching staff flats: ", error);
+                detailsContent.innerHTML = `<p class="text-red-400">Error: ${error.message}</p>`;
+            }
+        }
+
+
+        // Dark Mode Cleaner Details
+        async function showCleanerDetailsModal(cleanerId, cleanerName) {
+            const detailsContent = document.createElement('div');
+            detailsContent.innerHTML = `<p class="text-gray-400">Loading performance data...</p>`;
+            openModal(`${cleanerName}'s Performance`, detailsContent);
+
+            try {
+                const reportsQuery = query(collectionGroup(db, 'cleaning_reports'), where('staffUid', '==', cleanerId));
+                const querySnapshot = await getDocs(reportsQuery);
+                
+                let totalPoints = 0;
+                let reportsHTML = '';
+
+                if (querySnapshot.empty) {
+                    reportsHTML = '<p class="text-center text-gray-400 mt-4">No performance reports found for this cleaner.</p>';
+                } else {
+                    const reports = [];
+                    querySnapshot.forEach(doc => {
+                        const report = doc.data();
+                        reports.push(report);
+                        totalPoints += report.points || 0;
+                    });
+
+                    reportsHTML = '<ul class="space-y-3 mt-4">';
+                    reports.forEach(report => {
+                        const reportDate = report.createdAt?.toDate ? report.createdAt.toDate().toLocaleString() : 'N/A';
+                        reportsHTML += `
+                            <li class="p-3 border border-gray-700 bg-gray-700 rounded-lg">
+                                <div class="flex justify-between items-center">
+                                    <p class="font-semibold text-white">${report.condominiumName || 'Unknown Flat'}</p>
+                                    <p class="font-bold text-lg text-red-500">${report.points || 0} pts</p>
+                                </div>
+                                <p class="text-sm text-gray-400 mt-1">Date: ${reportDate}</p>
+                                ${report.review ? `<p class="text-sm text-gray-300 mt-2"><em>"${report.review}"</em></p>` : ''}
+                            </li>
+                        `;
+                    });
+                    reportsHTML += '</ul>';
+                }
+
+                detailsContent.innerHTML = `
+                    <div class="p-4 bg-gray-700 border-l-4 border-red-500 rounded-r-lg">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-6 w-6 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-xl font-bold text-white">Total Points: ${totalPoints}</p>
+                            </div>
+                        </div>
+                    </div>
+                    ${reportsHTML}
+                `;
+
+            } catch (error) {
+                console.error("Error fetching cleaner details: ", error);
+                detailsContent.innerHTML = `<p class="text-red-400">Error: ${error.message}. You may need to create a Firestore index.</p>`;
+            }
+        }
+
+        async function fetchDocs(collectionName, field, operator, value) {
+            const q = value ? query(collection(db, collectionName), where(field, operator, value)) : query(collection(db, collectionName));
+            const snapshot = await getDocs(q);
+            return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        }
+
+        // Dark Mode Confirmation Modal
+        function showChangeAssignmentConfirmationModal(managerName, oldCondoName, newCondoName, oldCondoId, newCondoId, managerId, managerNameToAssign, originalOwnerId, originalCondoId) {
+            const confirmContent = document.createElement('div');
+            confirmContent.innerHTML = `
+                <p class="text-gray-300"><strong>${managerName}</strong> is already assigned to <strong>${oldCondoName}</strong>.</p>
+                <p class="mt-2 text-gray-400">Do you want to change the assignment to <strong>${newCondoName}</strong>?</p>
+                <div class="flex justify-end space-x-3 mt-6">
+                    <button id="cancel-change" class="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600">Cancel</button>
+                    <button id="confirm-change" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">Yes, Change Assignment</button>
+                </div>
+            `;
+
+            openModal('Confirm Assignment Change', confirmContent);
+
+            confirmContent.querySelector('#cancel-change').addEventListener('click', () => {
+                showAssignManagerModal(originalOwnerId, originalCondoId); // Re-open original modal
+            });
+
+            confirmContent.querySelector('#confirm-change').addEventListener('click', async () => {
+                const changeButton = confirmContent.querySelector('#confirm-change');
+                changeButton.disabled = true;
+                changeButton.textContent = 'Changing...';
+                try {
+                    const oldCondoRef = doc(db, 'condominiums', oldCondoId);
+                    const newCondoRef = doc(db, 'condominiums', newCondoId);
+
+                    await Promise.all([
+                        updateDoc(oldCondoRef, { managerId: '', managerName: '' }),
+                        updateDoc(newCondoRef, { managerId: managerId, managerName: managerNameToAssign })
+                    ]);
+                    
+                    modalView.classList.add('hidden');
+                    showToast('Assignment changed successfully!');
+                    
+                    // Refresh relevant list
+                     if (window.location.hash === '#view-managers') {
+                         handleHashChange('#view-managers'); // Refresh manager list
+                     }
+                    else if (window.location.hash === '#view-owners' && adminMainTitle.textContent.includes('Flats for')) {
+                         const currentOwnerName = adminMainTitle.textContent.replace('Flats for ', '');
+                         const owners = await fetchDocs('users', 'role', '==', 'OWNER'); 
+                         const owner = owners.find(o => (o.ownerName || o.name) === currentOwnerName);
+                         if(owner && owner.id === originalOwnerId) { 
+                            renderOwnerFlatsPanel(originalOwnerId, currentOwnerName); 
+                         }
+                    }
+
+                } catch(error) {
+                    alert('Error changing assignment: ' + error.message);
+                    changeButton.disabled = false;
+                    changeButton.textContent = 'Yes, Change Assignment';
+                }
+            });
+        }
+
+
+        // Dark Mode Assign Modals
+        async function showAssignManagerModal(preselectedOwnerId = null, preselectedCondoId = null) {
+            const formContent = document.createElement('div');
+            
+            formContent.innerHTML = `<form id="assign-manager-form" class="space-y-4">
+                <select name="owner" class="w-full p-3 rounded-lg form-input-new" required><option value="">1. Select a Flat Owner</option></select>
+                <select name="condo" class="w-full p-3 rounded-lg form-input-new" required disabled><option value="">2. Select a Condominium</option></select>
+                
+                <input type="search" id="manager-search-input" placeholder="Search Managers..." class="w-full p-3 rounded-lg form-input-new" disabled>
+                <select name="manager" class="w-full p-3 rounded-lg form-input-new" required disabled><option value="">3. Select a Manager</option></select>
+                
+                <button type="submit" class="w-full bg-red-700 text-white p-3 rounded-lg hover:bg-red-800">Assign Manager</button>
+            </form>`;
+            openModal('Assign Manager to Flat', formContent);
+            
+            const ownerSelect = formContent.querySelector('[name="owner"]');
+            const condoSelect = formContent.querySelector('[name="condo"]');
+            const managerSearchInput = formContent.querySelector('#manager-search-input'); 
+            const managerSelect = formContent.querySelector('[name="manager"]');
+
+            const owners = await fetchDocs('users', 'role', '==', 'OWNER');
+            owners.forEach(owner => ownerSelect.innerHTML += `<option value="${owner.id}">${owner.ownerName || owner.name}</option>`);
+
+            const managers = await fetchDocs('users', 'role', '==', 'CONDOMINIUM_MANAGER');
+            managerSelect.innerHTML += `<option value="">Unassign</option>`;
+            managers.forEach(c => managerSelect.innerHTML += `<option value="${c.id}">${c.managerName || c.name}</option>`);
+            
+            if(managers.length >= 0) {
+                 managerSelect.disabled = false;
+                 managerSearchInput.disabled = false; 
+            }
+
+            managerSearchInput.addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                const options = managerSelect.options;
+                
+                let selectedIsVisible = false;
+                for (let i = 0; i < options.length; i++) {
+                    const optionText = options[i].text.toLowerCase();
+                    const isMatch = options[i].value === "" || optionText.includes(searchTerm);
+                    
+                    options[i].style.display = isMatch ? "" : "none";
+                    if (options[i].selected && isMatch) {
+                        selectedIsVisible = true;
+                    }
+                }
+                if (!selectedIsVisible && managerSelect.value !== "") {
+                     managerSelect.value = ""; 
+                }
+            });
+            
+            ownerSelect.addEventListener('change', async (e) => {
+                const ownerId = e.target.value;
+                condoSelect.innerHTML = '<option value="">Loading...</option>';
+                condoSelect.disabled = true;
+                if (!ownerId) {
+                    condoSelect.innerHTML = '<option value="">2. Select a Condominium</option>';
+                    return;
+                }
+                const condos = await fetchDocs('condominiums', 'ownerId', '==', ownerId); 
+                condoSelect.innerHTML = '<option value="">2. Select a Condominium</option>';
+                condos.forEach(condo => condoSelect.innerHTML += `<option value="${condo.id}">${condo.condominiumName}</option>`);
+                if(condos.length > 0) condoSelect.disabled = false;
+
+                if (preselectedCondoId && ownerId === preselectedOwnerId) {
+                    condoSelect.value = preselectedCondoId;
+                    preselectedCondoId = null; 
+                }
+            });
+
+            if (preselectedOwnerId) {
+                ownerSelect.value = preselectedOwnerId;
+                ownerSelect.dispatchEvent(new Event('change'));
+            }
+
+            formContent.querySelector('form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const currentOwnerId = ownerSelect.value;
+                const condoId = condoSelect.value;
+                const managerId = managerSelect.value;
+                const managerName = managerSelect.options[managerSelect.selectedIndex].text;
+                const condoName = condoSelect.options[condoSelect.selectedIndex].text;
+                
+                if(!condoId) return alert('Please select a condominium.');
+                
+                const submitButton = formContent.querySelector('button[type="submit"]');
+                submitButton.disabled = true;
+                submitButton.textContent = 'Processing...';
+
+                try {
+                     if (!managerId) { // Unassign logic
+                        await updateDoc(doc(db, 'condominiums', condoId), { managerId: '', managerName: '' });
+                        modalView.classList.add('hidden');
+                        showToast('Manager unassigned successfully!');
+                    } else {
+                        // Check if manager is already assigned
+                        const q = query(collection(db, "condominiums"), where("managerId", "==", managerId));
+                        const currentAssignmentSnapshot = await getDocs(q);
+
+                        if (!currentAssignmentSnapshot.empty) {
+                            const oldCondoDoc = currentAssignmentSnapshot.docs[0];
+                            if (oldCondoDoc.id === condoId) {
+                                alert(`${managerName} is already assigned to this condominium.`);
+                            } else {
+                                // Show confirmation - Pass currentOwnerId
+                                showChangeAssignmentConfirmationModal(managerName, oldCondoDoc.data().condominiumName, condoName, oldCondoDoc.id, condoId, managerId, managerName, currentOwnerId, condoId);
+                            }
+                        } else {
+                            // Fresh assignment
+                            await updateDoc(doc(db, 'condominiums', condoId), { managerId: managerId, managerName: managerName });
+                            modalView.classList.add('hidden');
+                            showToast('Assignment Successful!');
+                        }
+                    }
+
+                    // Refresh relevant list
+                     if (window.location.hash === '#view-managers') {
+                         handleHashChange('#view-managers'); // Refresh manager list
+                     }
+                    else if (window.location.hash === '#view-owners' && adminMainTitle.textContent.includes('Flats for')) {
+                        const currentOwnerName = adminMainTitle.textContent.replace('Flats for ', '');
+                        const owner = owners.find(o => (o.ownerName || o.name) === currentOwnerName);
+                         if(owner && owner.id === currentOwnerId) { 
+                            renderOwnerFlatsPanel(currentOwnerId, currentOwnerName); 
+                         }
+                    }
+
+                } catch(error) {
+                    alert('Error: ' + error.message);
+                } finally {
+                     submitButton.disabled = false;
+                     submitButton.textContent = 'Assign Manager';
+                }
+            });
+        }
+        
+         async function showAssignCleanerModal() {
+            const formContent = document.createElement('div');
+            
+            formContent.innerHTML = `<form id="assign-cleaner-form" class="space-y-4">
+                <select name="owner" class="w-full p-3 rounded-lg form-input-new" required><option value="">1. Select a Flat Owner</option></select>
+                
+                <div class="space-y-1">
+                    <label class="block text-sm font-medium text-gray-300">2. Select Flat(s)</label>
+                    <div id="condo-checkbox-list" class="w-full p-3 rounded-lg form-input-new max-h-40 overflow-y-auto">
+                        <p class="text-gray-400">Select an Owner first...</p>
+                    </div>
+                </div>
+
+                <select name="cleaner" class="w-full p-3 rounded-lg form-input-new" required disabled><option value="">3. Select a Cleaner</option></select>
+                <button type="submit" class="w-full bg-red-700 text-white p-3 rounded-lg hover:bg-red-800">Assign Cleaner</button>
+            </form>`;
+            openModal('Assign Cleaner to Flat(s)', formContent);
+            
+            const ownerSelect = formContent.querySelector('[name="owner"]');
+            const condoListDiv = formContent.querySelector('#condo-checkbox-list'); 
+            const cleanerSelect = formContent.querySelector('[name="cleaner"]');
+
+            const owners = await fetchDocs('users', 'role', '==', 'OWNER');
+            owners.forEach(owner => ownerSelect.innerHTML += `<option value="${owner.id}">${owner.ownerName || owner.name}</option>`);
+
+            const cleaners = await fetchDocs('users', 'role', '==', 'STAFF');
+            cleaners.forEach(c => cleanerSelect.innerHTML += `<option value="${c.id}">${c.staffName || c.name}</option>`);
+            if(cleaners.length > 0) cleanerSelect.disabled = false;
+            
+            ownerSelect.addEventListener('change', async (e) => {
+                const ownerId = e.target.value;
+                condoListDiv.innerHTML = '<p class="text-gray-400">Loading...</p>'; 
+                
+                if (!ownerId) {
+                    condoListDiv.innerHTML = '<p class="text-gray-400">Select an Owner first...</p>';
+                    return;
+                }
+                const condos = await fetchDocs('condominiums', 'ownerId', '==', ownerId); 
+                condoListDiv.innerHTML = ''; 
+                
+                if(condos.length > 0) {
+                     condos.forEach(condo => {
+                        condoListDiv.innerHTML += `
+                            <label class="flex items-center space-x-3 p-2 rounded-md hover:bg-gray-700 cursor-pointer">
+                                <input type="checkbox" name="condo_checkbox" value="${condo.id}" class="h-4 w-4 bg-gray-700 border-gray-500 text-red-600 focus:ring-red-500 rounded">
+                                <span class="text-gray-200">${condo.condominiumName}</span>
+                            </label>
+                        `;
+                    });
+                } else {
+                    condoListDiv.innerHTML = '<p class="text-gray-400">Owner has no flats</p>';
+                }
+            });
+
+            formContent.querySelector('form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const checkedCondos = formContent.querySelectorAll('[name="condo_checkbox"]:checked');
+                const cleanerId = cleanerSelect.value;
+                
+                if(!cleanerId) return alert('Please select a cleaner.');
+                if(checkedCondos.length === 0) return alert('Please select at least one flat.');
+                
+                const submitButton = formContent.querySelector('button[type="submit"]');
+                submitButton.disabled = true;
+                submitButton.textContent = 'Assigning...';
+
+                try {
+                    const updatePromises = [];
+                    checkedCondos.forEach(checkbox => {
+                        const condoId = checkbox.value;
+                        const condoRef = doc(db, 'condominiums', condoId);
+                        updatePromises.push(
+                            updateDoc(condoRef, {
+                                assignedStaffUids: arrayUnion(cleanerId)
+                            })
+                        );
+                    });
+                    
+                    await Promise.all(updatePromises);
+                    
+                    modalView.classList.add('hidden');
+                    showToast('Cleaner assigned to selected flats successfully!');
+
+                } catch(error) {
+                    alert('Error: ' + error.message); 
+                } finally {
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Assign Cleaner';
+                }
+            });
+         }
+        
+        // Initial load
+        showView('loader');
+    </script>
+</body>
+</html>
